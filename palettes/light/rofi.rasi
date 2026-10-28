@@ -1,0 +1,12 @@
+/* light palette of the rofi menus and the launcher, imported by the rofi themes */
+
+* {
+ pal-bg: #FAFAFAFA;
+ pal-bar: #EDEDED;
+ pal-element: #F0F0F0;
+ pal-selected: #DCDCDC;
+ pal-fg: #171717;
+ pal-muted: #6B6B6B;
+ pal-accent: #262626;
+ pal-border: #D4D4D4;
+}

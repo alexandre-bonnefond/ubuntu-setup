@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+# Switches the dark/light palette of i3, i3blocks, rofi, tmux, kitty and vim.
+#
+# usage: colorscheme [dark|light|toggle]   (no argument prints the active one)
+#
+# - each tool includes its file from ~/.config/ubuntu-setup/palette/, a symlink
+#   to palettes/dark or palettes/light of the repo, so switching relinks it
+#   and reloads what is running.
+# - rofi and new vims read the palette when they start, running vims keep theirs.
+
+set -euo pipefail
+
+PALETTE="$HOME/.config/ubuntu-setup/palette"
+if [ ! -L "$PALETTE" ]; then
+  echo "$PALETTE is missing, run install.sh" >&2
+  exit 1
+fi
+PALETTES=$(cd "$(dirname "$(readlink -f "$PALETTE")")" && pwd)
+CURRENT=$(basename "$(readlink -f "$PALETTE")")
+
+case "${1:-}" in
+  "") echo "$CURRENT" ; exit 0 ;;
+  dark|light) NEW=$1 ;;
+  toggle) [ "$CURRENT" = dark ] && NEW=light || NEW=dark ;;
+  *) echo "usage: $(basename "$0") [dark|light|toggle]" >&2 ; exit 1 ;;
+esac
+
+ln -sfn "$PALETTES/$NEW" "$PALETTE"
+
+# i3 and i3bar (i3blocks and the tray applets restart with it)
+pgrep -x i3 >/dev/null && i3-msg reload >/dev/null
+
+# the tmux server keeps the old colors otherwise
+tmux source-file "$PALETTE/tmux.conf" 2>/dev/null || true
+
+# kitty rereads its config on SIGUSR1
+pkill -USR1 -x kitty || true
+
+echo "$NEW"

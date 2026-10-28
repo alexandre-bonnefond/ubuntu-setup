@@ -1,0 +1,42 @@
+# apt packages installed by install.sh (Ubuntu 24.04), one per line
+
+# install.sh itself, i3blocks build
+stow
+git
+build-essential
+autoconf
+automake
+
+# i3 desktop
+i3-wm
+i3lock
+rofi
+dunst
+libnotify-bin
+feh
+arandr
+x11-xserver-utils
+xdotool
+jq
+copyq
+fonts-font-awesome
+fonts-terminus
+
+# i3blocks bar and tray
+acpi
+sysstat
+alsa-utils
+pulseaudio-utils
+pavucontrol
+network-manager-gnome
+blueman
+ubuntu-mono
+power-profiles-daemon
+
+# terminal and tools
+kitty
+tmux
+xclip
+vim
+ranger
+btop

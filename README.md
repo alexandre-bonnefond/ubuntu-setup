@@ -3,7 +3,7 @@
 My personal Ubuntu 24.04 setup (i3, i3blocks, rofi, tmux, bash, kitty, vim), replacing
 [klaxalk/linux-setup](https://github.com/klaxalk/linux-setup), from which it keeps only what I use.
 
-Status: **planning**, linux-setup (`~/git/linux-setup`, branch `alex_rofi_lenovo_setup`)
+Status: **step 1 done** (skeleton), linux-setup (`~/git/linux-setup`, branch `alex_rofi_lenovo_setup`)
 stays installed as the reference and safety net until everything is migrated.
 
 ## Principles
@@ -14,6 +14,20 @@ stays installed as the reference and safety net until everything is migrated.
   (i3, i3blocks, rofi, tmux, kitty, vim), instead of linux-setup's epigen profiles.
 - No surprises: no `git` wrapper that redeploys configs, no hidden caches.
 - Standalone tools stay in their own repos (e.g. `~/git/cmdvault`), hooked in with one line.
+
+## Layout
+
+- `install.sh`: apt packages from `packages.txt`, i3blocks 1.5 from source (Ubuntu ships
+  1.4), then `stow --no-folding` of `home/*` into `$HOME`. `./install.sh tmux kitty` links
+  only those, `--no-apt` skips apt, `--dry-run` only shows the links. Existing files are
+  never overwritten: stow lists them and changes nothing.
+- `home/<tool>/`: one stow package per tool, mirroring `$HOME`
+  (e.g. `home/tmux/.config/tmux/tmux.conf`). Scripts go in `home/bin/.local/bin/`.
+- `palettes/{dark,light}/`: one small file per tool (`i3.conf`, `rofi.rasi`, `tmux.conf`,
+  `kitty.conf`, `vim.vim`, `colors.sh` for the scripts and i3blocks blocks).
+  `~/.config/ubuntu-setup/palette` links to the active one and every config includes its
+  file from there. `colorscheme dark|light|toggle` relinks it and reloads i3, tmux and
+  kitty.
 
 ## Inventory
 
@@ -62,7 +76,7 @@ profiles and the other users' sections (Tomas, Matous, Pavel, ...), linux-setup'
 
 ## Plan
 
-1. Skeleton: `install.sh` (stow links, apt packages), palette system, repo layout.
+1. ~~Skeleton: `install.sh` (stow links, apt packages), palette system, repo layout.~~
 2. i3 + i3blocks + scripts + rofi (port from linux-setup, drop the profile blocks).
 3. tmux, bash, vim, kitty, ranger, btop.
 4. Switch over piece by piece on this laptop, then remove the linux-setup links.
