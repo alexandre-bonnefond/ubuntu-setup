@@ -2,8 +2,10 @@
 
 My personal Ubuntu 24.04 setup (i3, i3blocks, rofi, tmux, bash, kitty, vim), replacing
 [klaxalk/linux-setup](https://github.com/klaxalk/linux-setup), from which it keeps only what I use.
+Parts are ported from it (MIT License, Copyright (c) 2016 Tomáš Báča); files taken from other
+projects (git-forest, i3blocks-contrib blocks) keep their own license headers.
 
-Status: **step 3 done** (all configs ported; not switched over yet), linux-setup (`~/git/linux-setup`, branch `alex_rofi_lenovo_setup`)
+Status: **step 4** (switched over on the laptop, linux-setup leftovers to remove), linux-setup (`~/git/linux-setup`, branch `alex_rofi_lenovo_setup`)
 stays installed as the reference and safety net until everything is migrated.
 
 ## Principles
@@ -88,6 +90,8 @@ profiles and the other users' sections (Tomas, Matous, Pavel, ...), linux-setup'
      over at the next reload (`./install.sh i3 i3blocks rofi fonts bin` together).
    - `/usr/bin/xkblayout-state` links into linux-setup: remove it before deleting
      linux-setup, `install.sh` then builds it into `/usr/local/bin`.
+   - `~/.config/fontconfig/fonts.conf` (font hinting) is now in `home/fonts`: remove
+     linux-setup's link, then `./install.sh fonts`.
    - Move away `~/.tmux.conf` (linux-setup's copy) and `~/.config/ranger/*` (links into
      linux-setup) first, stow refuses to replace them.
    - `~/.bashrc`: `install.sh bash` appends `source ~/.config/bash/bashrc`, then delete the
@@ -95,4 +99,6 @@ profiles and the other users' sections (Tomas, Matous, Pavel, ...), linux-setup'
      `USE_ATHAME` exports.
    - apt `vim-gtk3` takes over the `vim` command from nvim, apt `btop` comes before the
      snap in `PATH` (the snap reads its config from `~/snap/btop`).
-5. Test a fresh install (VM or container).
+5. ~~Test a fresh install~~ (Ubuntu 24.04 container: install, configs, i3 / kitty / tmux /
+   vim / rofi on a virtual display). The hardware parts (tray, brightness, sound keys,
+   suspend) are only tested on the laptop.
