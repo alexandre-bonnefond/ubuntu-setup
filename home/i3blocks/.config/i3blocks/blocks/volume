@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# Volume of the default output (amixer through pulse, like the volume keys),
+# right click mutes, scrolling changes it by 5 %. Urgent when not muted.
+
+case "$BLOCK_BUTTON" in
+  3) amixer -q -D pulse sset Master toggle ;;
+  4) amixer -q -D pulse sset Master 5%+ unmute ;;
+  5) amixer -q -D pulse sset Master 5%- unmute ;;
+esac
+
+amixer -D pulse get Master | awk -F'[][]' '/%/ { print ($4 == "off") ? "MUTE" : $2; exit }' | {
+  read -r OUTPUT
+  echo "$OUTPUT"
+  [ "$OUTPUT" != "MUTE" ] && exit 33
+  exit 0
+}

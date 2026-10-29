@@ -1,0 +1,98 @@
+#!/bin/bash
+
+# Break reminder for i3blocks (interval=5, signal=14): counts down the work time,
+# notifies when it is time for a break, a click opens the break menu.
+#
+# Config: ~/.config/i3-break.conf, see ~/.config/i3/scripts/lib/break_state.sh
+
+source ~/.config/i3/scripts/lib/break_state.sh
+
+ICON_WORK=$''   # clock
+ICON_BREAK=$''  # coffee
+
+if [ -n "$BLOCK_BUTTON" ]; then
+  setsid -f ~/.config/i3/scripts/break_menu.sh >/dev/null 2>&1 </dev/null
+fi
+
+break_load
+
+# away from the keyboard: X idle time, or a gap between two runs (suspend)
+IDLE=$(( $(xssstate -i 2>/dev/null || echo 0) / 1000 ))
+GAP=$(( NOW - LAST_TICK ))
+[ "$GAP" -gt "$IDLE" ] && IDLE=$GAP
+AWAY=0
+[ "$IDLE" -ge $(( IDLE_MINUTES * 60 )) ] && AWAY=1
+
+COLOR=""
+
+case "$MODE" in
+
+  work)
+    [ "$AWAY" -eq 1 ] && START=$NOW
+    LEFT=$(( WORK_MINUTES * 60 - (NOW - START) ))
+    if [ "$LEFT" -le 0 ]; then
+      MODE=due
+      LAST_NOTIFY=$NOW
+      break_notify "Time for a break" "You have worked $WORK_MINUTES min, take $BREAK_MINUTES min: stand up, look away from the screen." critical
+      TEXT="$ICON_BREAK break!"
+      COLOR="$COLOR_WARN"
+    else
+      TEXT="$ICON_WORK $(( (LEFT + 59) / 60 ))m"
+    fi
+    ;;
+
+  due)
+    if [ "$AWAY" -eq 1 ]; then
+      # the break was taken away from the computer
+      MODE=work
+      START=$NOW
+      TEXT="$ICON_WORK ${WORK_MINUTES}m"
+    else
+      if [ $(( NOW - LAST_NOTIFY )) -ge $(( REMIND_MINUTES * 60 )) ]; then
+        LAST_NOTIFY=$NOW
+        break_notify "Still time for a break" "Overdue by $(( (NOW - START) / 60 - WORK_MINUTES )) min." critical
+      fi
+      TEXT="$ICON_BREAK break!"
+      COLOR="$COLOR_WARN"
+    fi
+    ;;
+
+  break)
+    LEFT=$(( UNTIL - NOW ))
+    if [ "$LEFT" -le 0 ]; then
+      MODE=work
+      START=$NOW
+      break_notify "Break is over" "Next break in $WORK_MINUTES min."
+      TEXT="$ICON_WORK ${WORK_MINUTES}m"
+    else
+      TEXT="$ICON_BREAK $(printf '%d:%02d' $(( LEFT / 60 )) $(( LEFT % 60 )))"
+      COLOR="$COLOR_OK"
+    fi
+    ;;
+
+  snooze)
+    LEFT=$(( UNTIL - NOW ))
+    if [ "$LEFT" -le 0 ]; then
+      MODE=work
+      START=$NOW
+      TEXT="$ICON_WORK ${WORK_MINUTES}m"
+    else
+      TEXT="$ICON_WORK off $(( (LEFT + 59) / 60 ))m"
+      COLOR="$COLOR_MUTED"
+    fi
+    ;;
+
+  *)
+    TEXT="$ICON_WORK off"
+    COLOR="$COLOR_MUTED"
+    ;;
+
+esac
+
+LAST_TICK=$NOW
+break_save
+
+echo "$TEXT"
+echo "$TEXT"
+[ -n "$COLOR" ] && echo "$COLOR"
+exit 0

@@ -1,0 +1,5 @@
+# i3 entry point: the active palette ($mod2+c switches it) sets the color
+# variables, then includes main.conf. It is the palette that includes main.conf
+# because i3 variables set in an included file are not visible outside of it.
+
+include ~/.config/ubuntu-setup/palette/i3.conf

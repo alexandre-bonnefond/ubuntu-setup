@@ -1,0 +1,80 @@
+/*
+ * Shared look of the i3 menus (power, screens, colorscheme, ...), same colors
+ * as the $mod+d launcher (launcher.rasi). Imported by menu-*.rasi.
+ * Colors come from the active palette (~/.config/ubuntu-setup/palette/rofi.rasi, $mod2+c switches it).
+ */
+
+@import "~/.config/ubuntu-setup/palette/rofi.rasi"
+
+* {
+ font: "Noto Sans 11";
+ background: @pal-bg;
+ background-bar: @pal-bar;
+ background-element: @pal-element;
+ selected: @pal-selected;
+ foreground: @pal-fg;
+ muted: @pal-muted;
+ accent: @pal-accent;
+ text-color: @foreground;
+ background-color: transparent;
+}
+
+window {
+ transparency: "real";
+ location: center;
+ anchor: center;
+ background-color: @background;
+ border: 2px;
+ border-color: @pal-border;
+ border-radius: 14px;
+}
+
+inputbar {
+ children: [ prompt, entry ];
+ background-color: @background-bar;
+ border-radius: 12px;
+ padding: 12px 16px;
+ spacing: 12px;
+}
+
+prompt {
+ font: "Noto Sans Bold 12";
+ text-color: @accent;
+}
+
+entry {
+ placeholder: "Search";
+ placeholder-color: @muted;
+ vertical-align: 0.5;
+}
+
+element {
+ background-color: @background-element;
+ border-radius: 10px;
+ cursor: pointer;
+}
+
+element-text {
+ text-color: inherit;
+ cursor: inherit;
+ vertical-align: 0.5;
+}
+
+element selected.normal, element selected.active {
+ background-color: @selected;
+}
+
+element normal.active, element alternate.active, element selected.active {
+ border: 2px;
+ border-color: @accent;
+}
+
+message {
+ background-color: transparent;
+ padding: 0px;
+}
+
+textbox {
+ text-color: @muted;
+ horizontal-align: 0.5;
+}

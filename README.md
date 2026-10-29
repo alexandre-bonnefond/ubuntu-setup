@@ -3,7 +3,7 @@
 My personal Ubuntu 24.04 setup (i3, i3blocks, rofi, tmux, bash, kitty, vim), replacing
 [klaxalk/linux-setup](https://github.com/klaxalk/linux-setup), from which it keeps only what I use.
 
-Status: **step 1 done** (skeleton), linux-setup (`~/git/linux-setup`, branch `alex_rofi_lenovo_setup`)
+Status: **step 2 done** (i3, i3blocks, scripts, rofi; not switched over yet), linux-setup (`~/git/linux-setup`, branch `alex_rofi_lenovo_setup`)
 stays installed as the reference and safety net until everything is migrated.
 
 ## Principles
@@ -22,11 +22,15 @@ stays installed as the reference and safety net until everything is migrated.
   only those, `--no-apt` skips apt, `--dry-run` only shows the links. Existing files are
   never overwritten: stow lists them and changes nothing.
 - `home/<tool>/`: one stow package per tool, mirroring `$HOME`
-  (e.g. `home/tmux/.config/tmux/tmux.conf`). Scripts go in `home/bin/.local/bin/`.
+  (e.g. `home/tmux/.config/tmux/tmux.conf`). Terminal scripts go in `home/bin/.local/bin/`,
+  the i3 menus and helpers in `home/i3/.config/i3/scripts/`, the bar blocks in
+  `home/i3blocks/.config/i3blocks/blocks/`.
 - `palettes/{dark,light}/`: one small file per tool (`i3.conf`, `rofi.rasi`, `tmux.conf`,
   `kitty.conf`, `vim.vim`, `colors.sh` for the scripts and i3blocks blocks).
   `~/.config/ubuntu-setup/palette` links to the active one and every config includes its
-  file from there. `colorscheme dark|light|toggle` relinks it and reloads i3, tmux and
+  file from there. For i3 the palette is the parent: `~/.config/i3/config` includes the
+  palette, which sets the color variables and includes `main.conf` (i3 variables set in an
+  included file are not visible outside of it). `colorscheme dark|light|toggle` relinks it and reloads i3, tmux and
   kitty.
 
 ## Inventory
@@ -77,7 +81,11 @@ profiles and the other users' sections (Tomas, Matous, Pavel, ...), linux-setup'
 ## Plan
 
 1. ~~Skeleton: `install.sh` (stow links, apt packages), palette system, repo layout.~~
-2. i3 + i3blocks + scripts + rofi (port from linux-setup, drop the profile blocks).
+2. ~~i3 + i3blocks + scripts + rofi (port from linux-setup, drop the profile blocks).~~
 3. tmux, bash, vim, kitty, ranger, btop.
 4. Switch over piece by piece on this laptop, then remove the linux-setup links.
+   - i3 reads `~/.config/i3/config` before `~/.i3/config`, so `./install.sh i3` switches i3
+     over at the next reload (`./install.sh i3 i3blocks rofi fonts bin` together).
+   - `/usr/bin/xkblayout-state` links into linux-setup: remove it before deleting
+     linux-setup, `install.sh` then builds it into `/usr/local/bin`.
 5. Test a fresh install (VM or container).

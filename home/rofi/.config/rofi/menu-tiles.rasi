@@ -1,0 +1,31 @@
+/* i3 menus: grid of tiles with the icon above the label, like the launcher */
+
+@import "menu-common.rasi"
+
+window {
+ width: 560px;
+}
+
+mainbox {
+ children: [ inputbar, listview, message ];
+ padding: 20px;
+ spacing: 16px;
+}
+
+listview {
+ columns: 3;
+ flow: horizontal;
+ lines: 3;
+ fixed-height: false;
+ dynamic: true;
+ spacing: 12px;
+ scrollbar: false;
+}
+
+element {
+ padding: 18px 8px;
+}
+
+element-text {
+ horizontal-align: 0.5;
+}

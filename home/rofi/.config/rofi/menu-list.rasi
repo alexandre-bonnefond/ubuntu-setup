@@ -1,0 +1,30 @@
+/* i3 menus: compact vertical list with the icon next to the label */
+
+@import "menu-common.rasi"
+
+window {
+ width: 360px;
+}
+
+mainbox {
+ children: [ inputbar, listview, message ];
+ padding: 14px;
+ spacing: 10px;
+}
+
+listview {
+ columns: 1;
+ lines: 8;
+ fixed-height: false;
+ dynamic: true;
+ spacing: 6px;
+ scrollbar: false;
+}
+
+element {
+ padding: 10px 16px;
+}
+
+element-text {
+ horizontal-align: 0;
+}

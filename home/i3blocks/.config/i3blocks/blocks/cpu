@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# CPU usage in percent, computed from /proc/stat, no dependencies.
+# Runs as a persistent i3blocks block (interval=persist, format=json).
+#
+# Turns orange above WARN and red above CRIT, left click opens btop.
+
+INTERVAL=${INTERVAL:-2}
+WARN=${WARN:-70}
+CRIT=${CRIT:-90}
+
+if [ -n "$BLOCK_BUTTON" ]; then
+  [ "$BLOCK_BUTTON" == "1" ] && setsid -f kitty -e btop >/dev/null 2>&1
+fi
+
+read_stat() {
+  # user nice system idle iowait irq softirq steal
+  read -r _ user nice system idle iowait irq softirq steal _ < /proc/stat
+  BUSY=$(( user + nice + system + irq + softirq + steal ))
+  TOTAL=$(( BUSY + idle + iowait ))
+}
+
+read_stat
+PREV_BUSY=$BUSY
+PREV_TOTAL=$TOTAL
+
+while true; do
+
+  sleep "$INTERVAL"
+
+  read_stat
+  DIFF_TOTAL=$(( TOTAL - PREV_TOTAL ))
+  [ "$DIFF_TOTAL" -le 0 ] && continue
+  USAGE=$(( 100 * (BUSY - PREV_BUSY) / DIFF_TOTAL ))
+  PREV_BUSY=$BUSY
+  PREV_TOTAL=$TOTAL
+
+  if [ "$USAGE" -ge "$CRIT" ]; then
+    COLOR=',"color":"'"$COLOR_CRIT"'"'
+  elif [ "$USAGE" -ge "$WARN" ]; then
+    COLOR=',"color":"'"$COLOR_WARN"'"'
+  else
+    COLOR=""
+  fi
+
+  printf '{"full_text":"CPU %d%%"%s}\n' "$USAGE" "$COLOR"
+
+done

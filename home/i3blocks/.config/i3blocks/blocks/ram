@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# RAM usage in percent (used = total - available, like htop), from /proc/meminfo.
+#
+# Turns orange above WARN and red above CRIT, left click shows the details.
+
+WARN=${WARN:-80}
+CRIT=${CRIT:-90}
+
+meminfo() {
+  awk -v key="$1:" '$1 == key { print $2 }' /proc/meminfo
+}
+
+TOTAL=$(meminfo MemTotal)
+AVAILABLE=$(meminfo MemAvailable)
+SWAP_TOTAL=$(meminfo SwapTotal)
+SWAP_FREE=$(meminfo SwapFree)
+USED=$(( TOTAL - AVAILABLE ))
+USAGE=$(( 100 * USED / TOTAL ))
+
+gib() {
+  awk -v kib="$1" 'BEGIN { printf "%.1f GiB", kib / 1048576 }'
+}
+
+if [ "$BLOCK_BUTTON" == "1" ]; then
+  TOP=$(ps -eo rss=,comm= --sort=-rss | head -n 5 | awk '{ printf "%-16s %5.1f GiB\n", $2, $1 / 1048576 }')
+  notify-send -u low -t 8000 "Memory" "RAM: $(gib $USED) / $(gib $TOTAL)\nSwap: $(gib $(( SWAP_TOTAL - SWAP_FREE ))) / $(gib $SWAP_TOTAL)\n\n$TOP" \
+    -h string:x-canonical-private-synchronous:memory
+fi
+
+echo "RAM $USAGE%"
+echo "RAM $USAGE%"
+if [ "$USAGE" -ge "$CRIT" ]; then
+  echo "$COLOR_CRIT"
+elif [ "$USAGE" -ge "$WARN" ]; then
+  echo "$COLOR_WARN"
+fi

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Active keyboard layout (xkblayout-state), urgent when it is not 'us'.
+# The layouts and the switch key come from /etc/default/keyboard.
+
+LAYOUT=$(xkblayout-state print "%s")
+
+echo "$LAYOUT"
+
+[ "$LAYOUT" != "us" ] && exit 33
+exit 0

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# power-profiles-daemon profile for i3blocks, a click opens the power profile menu.
+
+command -v powerprofilesctl >/dev/null 2>&1 || exit 0
+
+if [ -n "$BLOCK_BUTTON" ]; then
+  setsid -f ~/.config/i3/scripts/power_profile_menu.sh >/dev/null 2>&1 </dev/null
+fi
+
+case "$(powerprofilesctl get 2>/dev/null)" in
+  performance) echo $' perf'; echo $''; echo "$COLOR_WARN" ;;
+  power-saver) echo $' saver'; echo $''; echo "$COLOR_OK" ;;
+  *) echo $' bal'; echo $'' ;;
+esac

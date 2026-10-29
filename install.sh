@@ -55,6 +55,25 @@ fi
 
 # #}
 
+# #{ xkblayout-state from source (keyboard layout block of the bar, not packaged)
+
+if [ "$APT" = 1 ] && ! command -v xkblayout-state >/dev/null; then
+  BUILD=$(mktemp -d)
+  git clone --depth 1 https://github.com/nonpop/xkblayout-state "$BUILD/xkblayout-state"
+  (cd "$BUILD/xkblayout-state" && make && sudo install -m 755 xkblayout-state /usr/local/bin/)
+  rm -rf "$BUILD"
+fi
+
+# #}
+
+# #{ standalone tools in their own repos
+
+if [ "$DRY_RUN" = 0 ] && [ ! -d "$HOME/git/i3-layout-manager" ]; then
+  git clone https://github.com/klaxalk/i3-layout-manager "$HOME/git/i3-layout-manager"
+fi
+
+# #}
+
 # #{ link the configs
 
 if [ "$DRY_RUN" = 1 ]; then
@@ -63,6 +82,9 @@ if [ "$DRY_RUN" = 1 ]; then
 fi
 
 stow --no-folding -d "$REPO/home" -t "$HOME" "${PACKAGES[@]}"
+
+# fonts shipped in home/fonts (e.g. the Tailscale logo of the bar)
+fc-cache "$HOME/.local/share/fonts"
 
 # #}
 

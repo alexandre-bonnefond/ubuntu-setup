@@ -1,0 +1,49 @@
+# Cheatsheet shown by scripts/cheatsheet.sh ($mod2+slash and the bar icon).
+# section<TAB>keys<TAB>description<TAB>command run on Enter (optional)
+# Alt = $mod, Super = $mod2
+Menus	Super + /	This cheatsheet
+Menus	Alt + D	App launcher	rofi -show drun -theme ~/.config/rofi/launcher.rasi
+Menus	Super + F	Power menu: lock, logout, suspend, reboot, shutdown	~/.config/i3/scripts/power_menu.sh
+Menus	Super + M	Screen layouts saved by arandr (~/.screenlayout)	~/.config/i3/scripts/screen_layout_menu.sh
+Menus	Super + C	Colorscheme: dark / light	~/.config/i3/scripts/colorscheme_menu.sh
+Menus	Super + V	Clipboard history (Shift+Delete removes an item)	~/.config/i3/scripts/clipboard_menu.sh
+Menus	Super + L	i3 layout manager: save / restore window layouts	~/git/i3-layout-manager/layout_manager.sh
+Menus	Print	Screenshot of a region (shutter)	shutter --select
+Terminal	↵ here	Command vault: pick a saved command, Enter copies it	~/.local/bin/cmdvault rofi
+Terminal	Ctrl + G	Search the command vault, the command lands on the prompt
+Terminal	Ctrl + A, ?	Command vault in a tmux popup, pasted into the pane
+Terminal	Ctrl + X, S	Save the typed line (save, save N: the last commands)
+Terminal	rec NAME	Record the terminal (asciinema), linked to a vault entry
+Windows	Alt + Return	Terminal (kitty)	kitty
+Windows	Alt + Shift + Q	Close the window
+Windows	Alt + H / J / K / L	Focus left / down / up / right
+Windows	Alt + Shift + H / J / K / L	Move the window left / down / up / right
+Windows	Alt + F	Fullscreen
+Windows	Alt + Shift + Space	Floating on / off
+Windows	Alt + Space	Switch focus between floating and tiled
+Windows	Alt + A	Focus the parent container
+Windows	Alt + { / }	Split horizontally / vertically
+Windows	Alt + S / W / E	Layout: stacked / tabbed / toggle split
+Windows	Alt + Shift + Z / Alt + Z	Hide in the scratchpad / show the scratchpad
+Workspaces	Alt + 1 ... 0	Go to workspace 1 ... 10
+Workspaces	Alt + Shift + 1 ... 0	Move the window to workspace 1 ... 10
+Workspaces	Alt + N / M	Next / previous workspace on this screen
+Workspaces	Alt + X	Move the workspace to the screen on the right
+Modes	Alt + R	Resize mode (H/J/K/L, Escape to leave)
+Modes	Alt + Shift + G	Gaps mode (+/- inner, Shift +/- outer, 0 resets)
+Modes	Alt + C	Mouse mode: move the pointer with the keyboard (F/U click, D/I right click)
+Modes	Alt + Shift + T	Pass-through mode: i3 ignores the keys (VMs, remote desktop), same keys to leave
+i3	Alt + Shift + R	Restart i3 (after changing screens or the config)	i3-msg restart
+i3	Alt + Shift + C	Reload the i3 config	i3-msg reload
+i3	Alt + B	Hide / show the bar	i3-msg bar mode toggle
+Keys	Brightness keys	Screen brightness ±5%
+Keys	Volume keys	Volume ±5% / mute
+Keys	Media keys	Play / pause, next, previous (playerctl)
+Bar	CPU %	Click: btop	kitty -e btop
+Bar	RAM %	Click: RAM and swap usage, biggest processes
+Bar	Tailscale logo	Click: connect, exit node, peers, copy IP (grey = off)	~/.config/i3/scripts/tailscale_menu.sh
+Bar	Break timer (clock)	Click: take a break, restart, pause 1 h, rhythm (orange = break due)	~/.config/i3/scripts/break_menu.sh
+Bar	Power profile	Click: power saver / balanced / performance	~/.config/i3/scripts/power_profile_menu.sh
+Bar	Monitor icon	Click: screen layouts (same as Super + M)	~/.config/i3/scripts/screen_layout_menu.sh
+Bar	? icon	Click: this cheatsheet (same as Super + /)
+Bar	Power icon	Click: power menu (same as Super + F)	~/.config/i3/scripts/power_menu.sh

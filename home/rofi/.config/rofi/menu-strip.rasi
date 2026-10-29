@@ -1,0 +1,31 @@
+/* i3 menus: a single row of big buttons */
+
+@import "menu-common.rasi"
+
+window {
+ width: 900px;
+}
+
+mainbox {
+ children: [ inputbar, listview, message ];
+ padding: 20px;
+ spacing: 16px;
+}
+
+listview {
+ columns: 8;
+ lines: 1;
+ fixed-columns: false;
+ fixed-height: false;
+ dynamic: true;
+ spacing: 12px;
+ scrollbar: false;
+}
+
+element {
+ padding: 26px 4px;
+}
+
+element-text {
+ horizontal-align: 0.5;
+}

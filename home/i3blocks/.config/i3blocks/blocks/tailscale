@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Tailscale status for i3blocks with the official logo (Simple Icons font,
+# ~/.local/share/fonts/SimpleIcons.ttf), any click opens the tailscale menu.
+#
+# Needs markup=pango in the block config.
+
+OFF_COLOR=${OFF_COLOR:-$COLOR_MUTED}
+LOGO="<span font_desc='Simple Icons 11'>"$''"</span>"
+
+command -v tailscale >/dev/null 2>&1 || exit 0
+
+if [ -n "$BLOCK_BUTTON" ]; then
+  setsid -f ~/.config/i3/scripts/tailscale_menu.sh >/dev/null 2>&1 </dev/null
+fi
+
+STATUS=$(tailscale status --json 2>/dev/null)
+
+case "$(echo "$STATUS" | jq -r '.BackendState // "Unknown"')" in
+  Running)
+    EXIT_NODE=$(echo "$STATUS" | jq -r '[.Peer[]? | select(.ExitNode) | .HostName][0] // empty')
+    TEXT="$LOGO"
+    [ -n "$EXIT_NODE" ] && TEXT="$TEXT → $EXIT_NODE"
+    echo "$TEXT"
+    echo "$LOGO"
+    ;;
+  NeedsLogin|NeedsMachineAuth)
+    echo "$LOGO login"
+    echo "$LOGO"
+    echo "$COLOR_WARN"
+    ;;
+  *)
+    echo "$LOGO off"
+    echo "$LOGO"
+    echo "$OFF_COLOR"
+    ;;
+esac

@@ -1,0 +1,87 @@
+# i3blocks config (i3blocks 1.5), see man i3blocks
+#
+# Blocks run ~/.config/i3blocks/blocks/<name> unless they set their own command,
+# with the colors of the active palette in the environment ($COLOR_WARN, ...).
+# The default text color is the bar's statusline color from the i3 palette.
+
+command=. ~/.config/ubuntu-setup/palette/colors.sh; exec ~/.config/i3blocks/blocks/$BLOCK_NAME
+separator_block_width=15
+markup=none
+
+# CPU usage in %, left click opens btop
+[cpu]
+interval=persist
+format=json
+
+# RAM usage in %, left click shows the details
+[ram]
+interval=5
+
+# volume, right click mutes, scrolling changes it
+[volume]
+label=♪ 
+interval=1
+signal=10
+
+# free space in $HOME
+[disk]
+label=SSD 
+interval=30
+
+# Tailscale logo (Simple Icons font), gray when off, click opens the tailscale menu
+[tailscale]
+interval=10
+signal=12
+markup=pango
+separator=true
+
+[bandwidth]
+interval=1
+separator=true
+INLABEL= 
+OUTLABEL= 
+
+# power-profiles-daemon profile, a click opens the power profile menu
+[power_profile]
+interval=30
+signal=13
+separator=true
+
+# orange at 30 % and red at 15 % when discharging
+[battery]
+label=⚡ 
+instance=0
+interval=30
+
+[keyboard]
+label= 
+interval=2
+
+[time]
+command=date '+%d/%m/%Y %H:%M:%S'
+interval=1
+separator=true
+
+# break reminder: time until the next break, click opens the break menu (~/.config/i3-break.conf)
+[break]
+interval=5
+signal=14
+separator=true
+
+# cheatsheet of the shortcuts and bar icons
+[cheatsheet]
+full_text=
+command=setsid -f ~/.config/i3/scripts/cheatsheet.sh >/dev/null 2>&1
+separator=true
+
+# monitor setup menu, lists the arandr layouts from ~/.screenlayout
+[screenlayout]
+full_text=
+command=~/.config/i3/scripts/screen_layout_menu.sh
+separator=true
+
+# power menu
+[power]
+full_text=
+command=~/.config/i3/scripts/power_menu.sh
+separator=true

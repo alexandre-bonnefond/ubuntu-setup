@@ -1,32 +1,40 @@
 # apt packages installed by install.sh (Ubuntu 24.04), one per line
 
-# install.sh itself, i3blocks build
+# install.sh itself, i3blocks and xkblayout-state builds
 stow
 git
 build-essential
 autoconf
 automake
+libx11-dev
 
 # i3 desktop
 i3-wm
 i3lock
 rofi
+compton
 dunst
 libnotify-bin
 feh
 arandr
 x11-xserver-utils
+x11-utils
+xinput
 xdotool
+xdg-utils
 jq
 copyq
+shutter
+playerctl
 fonts-font-awesome
 fonts-terminus
 
 # i3blocks bar and tray
 acpi
 sysstat
+suckless-tools
 alsa-utils
-pulseaudio-utils
+libasound2-plugins
 pavucontrol
 network-manager-gnome
 blueman
