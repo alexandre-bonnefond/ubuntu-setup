@@ -1,7 +1,7 @@
-# Cheatsheet shown by scripts/cheatsheet.sh ($mod2+slash and the bar icon).
+# Cheatsheet shown by scripts/cheatsheet.sh ($mod2+slash and the ? icon in the bar).
 # section<TAB>keys<TAB>description<TAB>command run on Enter (optional)
-# Alt = $mod, Super = $mod2
-Menus	Super + /	This cheatsheet
+# Each section is a tab, in this order. Alt = $mod, Super = $mod2.
+Menus	Super + /	This cheatsheet (Ctrl+Tab: next tab)
 Menus	Alt + D	App launcher	rofi -show drun -theme ~/.config/rofi/launcher.rasi
 Menus	Super + F	Power menu: lock, logout, suspend, reboot, shutdown	~/.config/i3/scripts/power_menu.sh
 Menus	Super + M	Screen layouts saved by arandr (~/.screenlayout)	~/.config/i3/scripts/screen_layout_menu.sh
@@ -9,41 +9,96 @@ Menus	Super + C	Colorscheme: dark / light	~/.config/i3/scripts/colorscheme_menu.
 Menus	Super + V	Clipboard history (Shift+Delete removes an item)	~/.config/i3/scripts/clipboard_menu.sh
 Menus	Super + L	i3 layout manager: save / restore window layouts	~/git/i3-layout-manager/layout_manager.sh
 Menus	Print	Screenshot of a region (shutter)	shutter --select
-Terminal	↵ here	Command vault: pick a saved command, Enter copies it	~/.local/bin/cmdvault rofi
-Terminal	Ctrl + G	Search the command vault, the command lands on the prompt
-Terminal	Ctrl + A, ?	Command vault in a tmux popup, pasted into the pane
-Terminal	Ctrl + X, S	Save the typed line (save, save N: the last commands)
-Terminal	rec NAME	Record the terminal (asciinema), linked to a vault entry
-Windows	Alt + Return	Terminal (kitty)	kitty
+Menus	Brightness keys	Screen brightness ±5%
+Menus	Volume keys	Volume ±5% / mute
+Menus	Media keys	Play / pause, next, previous (playerctl)
+Windows	Alt + Return	Terminal (kitty, tmux starts in it)	kitty
 Windows	Alt + Shift + Q	Close the window
 Windows	Alt + H / J / K / L	Focus left / down / up / right
 Windows	Alt + Shift + H / J / K / L	Move the window left / down / up / right
+Windows	Alt + Tab	Focus the window on the right
 Windows	Alt + F	Fullscreen
 Windows	Alt + Shift + Space	Floating on / off
 Windows	Alt + Space	Switch focus between floating and tiled
-Windows	Alt + A	Focus the parent container
+Windows	Alt + A / Alt + Q	Focus the parent / child container
 Windows	Alt + { / }	Split horizontally / vertically
 Windows	Alt + S / W / E	Layout: stacked / tabbed / toggle split
 Windows	Alt + Shift + Z / Alt + Z	Hide in the scratchpad / show the scratchpad
+Windows	Alt + R	Resize mode (H/J/K/L, Shift grows one side, Escape leaves)
+Windows	Alt + Shift + G	Gaps mode (+/- inner, Shift +/- outer, 0 resets)
+Windows	Alt + C	Mouse mode: move the pointer with the keyboard (F/U click, D/I right click)
+Windows	Alt + Shift + T	Pass-through mode: i3 ignores the keys (VMs, remote desktop), same keys to leave
+Windows	Alt + Shift + R	Restart i3 (after changing screens or the config)	i3-msg restart
+Windows	Alt + Shift + C	Reload the i3 config	i3-msg reload
+Windows	Alt + B	Hide / show the bar	i3-msg bar mode toggle
 Workspaces	Alt + 1 ... 0	Go to workspace 1 ... 10
 Workspaces	Alt + Shift + 1 ... 0	Move the window to workspace 1 ... 10
 Workspaces	Alt + N / M	Next / previous workspace on this screen
 Workspaces	Alt + X	Move the workspace to the screen on the right
-Modes	Alt + R	Resize mode (H/J/K/L, Escape to leave)
-Modes	Alt + Shift + G	Gaps mode (+/- inner, Shift +/- outer, 0 resets)
-Modes	Alt + C	Mouse mode: move the pointer with the keyboard (F/U click, D/I right click)
-Modes	Alt + Shift + T	Pass-through mode: i3 ignores the keys (VMs, remote desktop), same keys to leave
-i3	Alt + Shift + R	Restart i3 (after changing screens or the config)	i3-msg restart
-i3	Alt + Shift + C	Reload the i3 config	i3-msg reload
-i3	Alt + B	Hide / show the bar	i3-msg bar mode toggle
-Keys	Brightness keys	Screen brightness ±5%
-Keys	Volume keys	Volume ±5% / mute
-Keys	Media keys	Play / pause, next, previous (playerctl)
 Bar	CPU %	Click: btop	kitty -e btop
 Bar	RAM %	Click: RAM and swap usage, biggest processes
+Bar	♪ Volume	Right click: mute, scroll: ±5% (highlighted when not muted)
 Bar	Tailscale logo	Click: connect, exit node, peers, copy IP (grey = off)	~/.config/i3/scripts/tailscale_menu.sh
-Bar	Break timer (clock)	Click: take a break, restart, pause 1 h, rhythm (orange = break due)	~/.config/i3/scripts/break_menu.sh
 Bar	Power profile	Click: power saver / balanced / performance	~/.config/i3/scripts/power_profile_menu.sh
-Bar	Monitor icon	Click: screen layouts (same as Super + M)	~/.config/i3/scripts/screen_layout_menu.sh
+Bar	Keyboard layout	Highlighted when not 'us' (Right Ctrl + Right Shift switches)
+Bar	Break timer (clock)	Click: take a break, restart, pause 1 h, rhythm (orange = break due)	~/.config/i3/scripts/break_menu.sh
 Bar	? icon	Click: this cheatsheet (same as Super + /)
+Bar	Monitor icon	Click: screen layouts (same as Super + M)	~/.config/i3/scripts/screen_layout_menu.sh
 Bar	Power icon	Click: power menu (same as Super + F)	~/.config/i3/scripts/power_menu.sh
+Tmux	Ctrl + A	The prefix: press it, release, then the key
+Tmux	Ctrl + T	New window (in the current folder)
+Tmux	Alt + U / I, Shift + ← / →	Next / previous window
+Tmux	Ctrl + Shift + ← / →	Move the window left / right
+Tmux	Ctrl + 9 / Ctrl + 0	Split: new pane below / on the right (current folder)
+Tmux	Ctrl + H / J / K / L	Move between panes (and vim splits)
+Tmux	Alt + arrows, Alt + Y / O	Move between panes
+Tmux	Ctrl + A, Ctrl + H/J/K/L	Resize the pane (repeat the key)
+Tmux	Ctrl + A, z	Zoom the pane in / out (tmux default)
+Tmux	Ctrl + A, x	Close the pane (tmux default)
+Tmux	Ctrl + A, ,	Rename the window (tmux default)
+Tmux	F2	Copy mode: v selects, Ctrl+V block, y copies to the clipboard
+Tmux	Ctrl + A, p	Paste the clipboard
+Tmux	Ctrl + P	Find a file and open it in vim
+Tmux	Ctrl + A, s	Session list: pick a session to switch to
+Tmux	Ctrl + A, k	Kill the session and everything in it, back to its folder
+Tmux	Ctrl + A, r	Reload the tmux config
+Tmux	Ctrl + A, m / u	Mount / unmount a drive
+Tmux	Ctrl + A, e	End the experiment: stop the rosbag, rename it, kill everything
+Bash	sb	Reload ~/.bashrc
+Bash	:q / :qa	Exit the shell / kill the whole tmux session
+Bash	ra, ranger	File manager, the shell follows to the folder you leave it in
+Bash	cd_media	ranger in the mounted drives (/media/$USER)
+Bash	gs	git status
+Bash	glog / flog	git log as a graph / all branches as a tree (git-forest)
+Bash	gppo / gppl	Pull and push the current branch (origin / local)
+Bash	gcmp	Checkout master and pull
+Bash	gr CMD	git CMD in every submodule (e.g. gr status)
+Bash	git2ssh / git2https	Switch the origin remote between ssh and https
+Bash	killp PID	Kill a process with all its children
+Bash	auto-retry CMD	Rerun a command until it succeeds
+Bash	ssh-auto-retry HOST	ssh, retried until it connects
+Bash	colorscheme dark|light	Switch the palette from the terminal (same as Super + C)
+Bash	indie	Today's lunch menu of the Kathmandu restaurant
+Bash	slack [mrs|eagle]	Slack in the terminal (slack-term)
+Bash	papis	Paper library (no arguments: papis edit)
+Bash	getVideoThumbnail V [T]	Frame of the video V (at time T, default 1 s) as V_thumbnail.jpg
+Bash	demangle	Demangle C++ symbols (c++filt)
+Bash	octave	Octave without the GUI
+Vim	, or Space	The leader key
+Vim	jk	Leave insert mode
+Vim	H / L	Jump to the line start / end
+Vim	Ctrl + H / J / K / L	Move between splits (and tmux panes)
+Vim	Shift + J / K	Next / previous tab
+Vim	Ctrl + P	Open a file from the subfolders (Tab completes)
+Vim	, g	Reindent the file and trim the trailing spaces
+Vim	, d	Delete without overwriting the yanked text
+Vim	, fr / , frl	Find and replace in the file / on the line
+Vim	*	Highlight the word under the cursor without jumping
+Vim	// (visual)	Search the selected text
+Vim	:w!!	Save with sudo
+Vim	, r / , p / , a	Toggle relative numbers / paste mode / word highlight
+Cmdvault	↵ here	Command vault: pick a saved command, Enter copies it	~/.local/bin/cmdvault rofi
+Cmdvault	Ctrl + G	Search the command vault, the command lands on the prompt
+Cmdvault	Ctrl + A, ?	Command vault in a tmux popup, pasted into the pane
+Cmdvault	Ctrl + X, S	Save the typed line (save, save N: the last commands)
+Cmdvault	rec NAME	Record the terminal (asciinema), linked to a vault entry

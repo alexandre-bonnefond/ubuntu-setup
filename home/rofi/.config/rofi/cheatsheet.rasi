@@ -1,0 +1,38 @@
+/* cheatsheet ($mod2+slash): the list menu, wider, with a tab per section */
+
+@import "menu-list.rasi"
+
+window {
+ width: 1050px;
+}
+
+mainbox {
+ children: [ inputbar, mode-switcher, listview, message ];
+}
+
+listview {
+ lines: 20;
+ fixed-height: true;
+ spacing: 2px;
+}
+
+element {
+ padding: 5px 14px;
+}
+
+mode-switcher {
+ spacing: 6px;
+}
+
+button {
+ padding: 6px 10px;
+ border-radius: 8px;
+ background-color: @background-element;
+ text-color: @muted;
+ cursor: pointer;
+}
+
+button selected {
+ background-color: @selected;
+ text-color: @foreground;
+}
