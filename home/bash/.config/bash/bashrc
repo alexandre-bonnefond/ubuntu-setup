@@ -1,0 +1,195 @@
+# Bash additions, sourced at the end of ~/.bashrc (one line added by install.sh).
+# Starts tmux in every kitty terminal unless RUN_TMUX=false.
+
+export EDITOR=vim
+export FZF_DEFAULT_OPTS='--height 25%'
+command -v ag >/dev/null && export FZF_DEFAULT_COMMAND='ag -l -f --nocolor -g ""'
+
+# #{ aliases
+
+alias sb="source ~/.bashrc"
+alias :q=exit
+alias ra=ranger
+alias octave="octave --no-gui"
+alias demangle="c++filt"
+
+alias gs="git status"
+alias gcmp="git checkout master; git pull"
+alias gppl="gitPullPush local"
+alias gppo="gitPullPush origin"
+alias gr="gitSubmoduleRecursive"
+alias glog="git log --graph --abbrev-commit --date=relative --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'"
+alias flog="git-forest --all --date=relative --abbrev-commit --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --style=15"
+
+# #}
+
+# #{ git
+
+# pull and push the current branch (gppl: remote 'local', gppo: 'origin')
+gitPullPush() {
+  local branch
+  branch=$(git branch --show-current)
+  git pull "${1:-origin}" "$branch"
+  git push "${1:-origin}" "$branch"
+}
+
+gitSubmoduleRecursive() {
+  git submodule foreach git "$@"
+}
+
+# switch the origin remote between git@host:path and https://host/path
+git2https() {
+  local old new
+  old=$(git remote get-url origin)
+  echo "Old remote: $old"
+  new=$(echo "$old" | sed -r 's|.*git@(.+):(.+)|https://\1/\2|' | head -n 1)
+  echo "New remote: $new"
+  [ -n "$new" ] && git remote set-url origin "$new"
+}
+
+git2ssh() {
+  local old new
+  old=$(git remote get-url origin)
+  echo "Old remote: $old"
+  new=$(echo "$old" | sed -r 's|https://([^/]+)/(.+)|git@\1:\2|' | head -n 1)
+  echo "New remote: $new"
+  [ -n "$new" ] && git remote set-url origin "$new"
+}
+
+# #}
+
+# #{ processes and retries
+
+# kill a process with all its children
+killp() {
+  if [ $# -eq 0 ]; then
+    echo "killp needs a process id"
+    return 1
+  fi
+  local child
+  for child in $(ps -o pid,ppid -ax | awk "{ if ( \$2 == $1 ) { print \$1 }}"); do
+    killp "$child"
+  done
+  kill -9 "$1" >/dev/null 2>&1
+}
+
+# rerun a command until it succeeds
+auto-retry() {
+  false
+  while [ $? -ne 0 ]; do
+    "$@" || (sleep 1; false)
+  done
+}
+
+ssh-auto-retry() {
+  auto-retry ssh "$@"
+}
+
+# #}
+
+# #{ tools
+
+# ranger, then cd to where it was left
+ranger() {
+  command ranger --choosedir=/tmp/lastrangerdir "$@"
+  cd "$(cat /tmp/lastrangerdir)"
+}
+
+# ranger in the mounted drives (used by the tmux mount menu, prefix + m)
+cd_media() {
+  cd "/media/$USER" && ranger
+}
+
+# papis without arguments is 'papis edit'
+papis() {
+  [ $# -eq 0 ] && set -- edit
+  command papis "$@"
+}
+
+# slack in the terminal (slack-term), the workspace from the argument or a rofi menu
+slack() {
+  local name cfg
+  name=${1:-$(printf 'mrs\neagle' | rofi -i -dmenu -no-custom -p "Select slack")}
+  mkdir -p ~/git/notes/slack
+  case "$name" in
+    mrs) cfg=~/git/notes/slack/mrsworkspace ;;
+    eagle) cfg=~/git/notes/slack/drone-eagleone ;;
+    *) return 1 ;;
+  esac
+  slack-term -config "$cfg"
+}
+
+# first frame (or the frame at $2, e.g. 00:00:05) of a video as <name>_thumbnail.jpg
+getVideoThumbnail() {
+  if [ $# -eq 0 ]; then
+    echo "usage: getVideoThumbnail VIDEO [TIME]"
+    return 1
+  fi
+  ffmpeg -i "$1" -ss "${2:-00:00:01}" -vframes 1 "${1%.*}_thumbnail.jpg"
+}
+
+# #}
+
+# #{ tmux
+
+forceKillTmuxSession() {
+  tmux kill-session -t "$1" 2>/dev/null
+}
+
+# :qa kills the tmux session with everything running in it
+quitTmuxSession() {
+  if [ -n "$TMUX" ]; then
+    echo "killing session"
+    local pid
+    for pid in $(tmux list-panes -s -F "#{pane_pid} #{pane_current_command}" | grep -v tmux | awk '{print $1}'); do
+      killp "$pid" &
+    done
+    tmux kill-session -t "$(tmux display-message -p '#S')"
+  else
+    exit
+  fi
+}
+alias :qa="quitTmuxSession"
+
+# tmux session named after this shell (T<pid>), attached when it already exists.
+# destroy-unattached ends the session when its terminal is gone, even when the terminal
+# was killed without running the exit trap below (only for these sessions, scripts
+# that start a detached session and attach later keep working).
+# When the session ends, cd to the folder it was killed from (prefix + k, :qa).
+runTmux() {
+  local session="T$BASHPID"
+  if tmux has-session -t "=$session" 2>/dev/null; then
+    tmux -2 attach-session -t "$session"
+  else
+    tmux new-session -s "$session" \; set-option destroy-unattached on
+  fi
+  if [ -f /tmp/tmux_restore_path.txt ]; then
+    cd "$(tail -n 1 /tmp/tmux_restore_path.txt)"
+    rm /tmp/tmux_restore_path.txt
+  fi
+}
+
+# #}
+
+# cmdvault: save, rec, cv, Ctrl+G search, Ctrl+X s save (~/git/cmdvault)
+[ -f ~/git/cmdvault/shell/cmdvault.bash ] && source ~/git/cmdvault/shell/cmdvault.bash
+
+# #{ interactive: tmux in every kitty terminal
+
+case $- in
+  *i*)
+    # closing the terminal ends its tmux session
+    _trap_exit() {
+      pwd >> /tmp/tmux_restore_path.txt
+      forceKillTmuxSession "T$BASHPID"
+    }
+    trap _trap_exit EXIT
+
+    # only in kitty, not in the shells of IDEs and apps (Cursor, Claude Desktop, ...)
+    if [ "${RUN_TMUX:-true}" = true ] && [ -z "$TMUX" ] && [ "$TERM" = xterm-kitty ] && command -v tmux >/dev/null; then
+      runTmux
+    fi
+    ;;
+esac
+
+# #}

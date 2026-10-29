@@ -3,7 +3,7 @@
 My personal Ubuntu 24.04 setup (i3, i3blocks, rofi, tmux, bash, kitty, vim), replacing
 [klaxalk/linux-setup](https://github.com/klaxalk/linux-setup), from which it keeps only what I use.
 
-Status: **step 2 done** (i3, i3blocks, scripts, rofi; not switched over yet), linux-setup (`~/git/linux-setup`, branch `alex_rofi_lenovo_setup`)
+Status: **step 3 done** (all configs ported; not switched over yet), linux-setup (`~/git/linux-setup`, branch `alex_rofi_lenovo_setup`)
 stays installed as the reference and safety net until everything is migrated.
 
 ## Principles
@@ -82,10 +82,17 @@ profiles and the other users' sections (Tomas, Matous, Pavel, ...), linux-setup'
 
 1. ~~Skeleton: `install.sh` (stow links, apt packages), palette system, repo layout.~~
 2. ~~i3 + i3blocks + scripts + rofi (port from linux-setup, drop the profile blocks).~~
-3. tmux, bash, vim, kitty, ranger, btop.
+3. ~~tmux, bash, vim, kitty, ranger, btop.~~
 4. Switch over piece by piece on this laptop, then remove the linux-setup links.
    - i3 reads `~/.config/i3/config` before `~/.i3/config`, so `./install.sh i3` switches i3
      over at the next reload (`./install.sh i3 i3blocks rofi fonts bin` together).
    - `/usr/bin/xkblayout-state` links into linux-setup: remove it before deleting
      linux-setup, `install.sh` then builds it into `/usr/local/bin`.
+   - Move away `~/.tmux.conf` (linux-setup's copy) and `~/.config/ranger/*` (links into
+     linux-setup) first, stow refuses to replace them.
+   - `~/.bashrc`: `install.sh bash` appends `source ~/.config/bash/bashrc`, then delete the
+     `source .../linux-setup/appconfig/bash/dotbashrc` line and the `PROFILES` and
+     `USE_ATHAME` exports.
+   - apt `vim-gtk3` takes over the `vim` command from nvim, apt `btop` comes before the
+     snap in `PATH` (the snap reads its config from `~/snap/btop`).
 5. Test a fresh install (VM or container).

@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+
+# Today's lunch menu of the Kathmandu restaurant (Indian, near CTU).
+# The page lists the menu as schema.org JSON-LD, one section per day ("Thursday 2026-10-29").
+
+import datetime
+import json
+import re
+import urllib.request
+
+URL = 'https://restauracekathmandu.cz/denni-menu?lang=en'
+
+html = urllib.request.urlopen(URL, timeout=10).read().decode('utf-8', errors='replace')
+today = datetime.date.today().isoformat()
+
+for script in re.findall(r'<script[^>]*application/ld\+json[^>]*>(.*?)</script>', html, re.S):
+    data = json.loads(script)
+    if data.get('@type') != 'Menu':
+        continue
+    for section in data.get('hasMenuSection', []):
+        if section.get('name', '').endswith(today):
+            for i, item in enumerate(section.get('hasMenuItem', []), 1):
+                price = item.get('offers', {}).get('price')
+                line = f"{i}. {item['name']}" + (f" ({float(price):.0f} CZK)" if price else '')
+                print(line + (f"\n   {item['description']}" if item.get('description') else ''))
+            raise SystemExit(0)
+
+print('No menu today (weekend, holiday, or the page changed): ' + URL)

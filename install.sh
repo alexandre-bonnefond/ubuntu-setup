@@ -88,6 +88,14 @@ fc-cache "$HOME/.local/share/fonts"
 
 # #}
 
+# #{ one line in ~/.bashrc sources the bash additions (~/.bashrc stays yours)
+
+if [[ " ${PACKAGES[*]} " == *" bash "* ]] && ! grep -qs '\.config/bash/bashrc' "$HOME/.bashrc"; then
+  printf '\n# ubuntu-setup (tmux in every terminal, aliases)\nsource ~/.config/bash/bashrc\n' >> "$HOME/.bashrc"
+fi
+
+# #}
+
 # #{ active palette, dark unless one is already chosen
 
 PALETTE="$HOME/.config/ubuntu-setup/palette"

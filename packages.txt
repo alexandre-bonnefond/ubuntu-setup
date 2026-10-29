@@ -28,6 +28,7 @@ shutter
 playerctl
 fonts-font-awesome
 fonts-terminus
+fonts-inconsolata
 
 # i3blocks bar and tray
 acpi
@@ -45,6 +46,7 @@ power-profiles-daemon
 kitty
 tmux
 xclip
-vim
+vim-gtk3
 ranger
+w3m-img
 btop
