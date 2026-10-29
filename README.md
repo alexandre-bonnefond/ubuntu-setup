@@ -48,7 +48,7 @@ stays installed as the reference and safety net until everything is migrated.
 - **Scripts**: power menu (lock with grab diagnostics, logout, suspend, reboot, shutdown),
   screen layouts (arandr `~/.screenlayout`, i3 restart), colorscheme, clipboard history
   (CopyQ), Tailscale menu, power profile menu, break reminder, cheatsheet, brightness
-  through logind, tray watchdog, layout manager.
+  through logind, tray watchdog.
 - **tmux**: everything
   - auto-start in every terminal, prefix `Ctrl+A`
   - `Ctrl+T` new window, `Alt+U/I` and `Shift+arrows` next/previous, `Ctrl+Shift+arrows` move

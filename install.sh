@@ -66,14 +66,6 @@ fi
 
 # #}
 
-# #{ standalone tools in their own repos
-
-if [ "$DRY_RUN" = 0 ] && [ ! -d "$HOME/git/i3-layout-manager" ]; then
-  git clone https://github.com/klaxalk/i3-layout-manager "$HOME/git/i3-layout-manager"
-fi
-
-# #}
-
 # #{ link the configs
 
 if [ "$DRY_RUN" = 1 ]; then

@@ -7,7 +7,6 @@ Menus	Super + F	Power menu: lock, logout, suspend, reboot, shutdown	~/.config/i3
 Menus	Super + M	Screen layouts saved by arandr (~/.screenlayout)	~/.config/i3/scripts/screen_layout_menu.sh
 Menus	Super + C	Colorscheme: dark / light	~/.config/i3/scripts/colorscheme_menu.sh
 Menus	Super + V	Clipboard history (Shift+Delete removes an item)	~/.config/i3/scripts/clipboard_menu.sh
-Menus	Super + L	i3 layout manager: save / restore window layouts	~/git/i3-layout-manager/layout_manager.sh
 Menus	Print	Screenshot of a region (shutter)	shutter --select
 Menus	Brightness keys	Screen brightness ±5%
 Menus	Volume keys	Volume ±5% / mute
