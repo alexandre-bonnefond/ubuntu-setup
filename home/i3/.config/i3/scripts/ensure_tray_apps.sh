@@ -8,8 +8,10 @@
 # - The applets get their own XDG_CONFIG_HOME with a gtk-3.0/settings.ini using
 #   the ubuntu-mono-dark/light icon theme (light icons for a dark bar and vice
 #   versa), so the icon theme of the other apps is not touched. Their dconf
-#   settings are shared through a symlink. When the colorscheme changes, the
-#   applets are restarted with the new icons.
+#   settings are shared through a symlink.
+# - GTK reads the icon theme once, when an applet starts. The applets are started
+#   with TRAY_ICON_THEME in their environment and restarted when it is not the
+#   theme of the active palette (after $mod2+c, or when the session started them).
 
 # let the old i3bar go away first (that is when the applets crash)
 sleep "${1:-3}"
@@ -23,28 +25,21 @@ ICON_THEME="$TRAY_ICON_THEME"
 
 mkdir -p "$TRAY_CONFIG/gtk-3.0"
 [ -e "$TRAY_CONFIG/dconf" ] || ln -s "$HOME/.config/dconf" "$TRAY_CONFIG/dconf"
-printf '[Settings]\ngtk-icon-theme-name=%s\ngtk-application-prefer-dark-theme=%s\n' "$ICON_THEME" "$DARK" > "$TRAY_CONFIG/gtk-3.0/settings.ini.new"
+printf '[Settings]\ngtk-icon-theme-name=%s\ngtk-application-prefer-dark-theme=%s\n' "$ICON_THEME" "$DARK" > "$TRAY_CONFIG/gtk-3.0/settings.ini"
 
-# icon theme changed since the applets were started -> restart them
-RESTART=0
-if ! cmp -s "$TRAY_CONFIG/gtk-3.0/settings.ini.new" "$TRAY_CONFIG/gtk-3.0/settings.ini"; then
-  RESTART=1
-fi
-mv "$TRAY_CONFIG/gtk-3.0/settings.ini.new" "$TRAY_CONFIG/gtk-3.0/settings.ini"
-
-# true when the process runs with our settings (and not, e.g., started by the session)
-has_tray_config() {
-  tr '\0' '\n' < "/proc/$1/environ" 2>/dev/null | grep -qx "XDG_CONFIG_HOME=$TRAY_CONFIG"
+# true when the process was started here with the current icon theme
+up_to_date() {
+  [ "$(tr '\0' '\n' < "/proc/$1/environ" 2>/dev/null | grep -cxE "XDG_CONFIG_HOME=$TRAY_CONFIG|TRAY_ICON_THEME=$ICON_THEME")" -eq 2 ]
 }
 
 start() {
-  XDG_CONFIG_HOME="$TRAY_CONFIG" setsid -f "$@" >/dev/null 2>&1
+  XDG_CONFIG_HOME="$TRAY_CONFIG" TRAY_ICON_THEME="$ICON_THEME" setsid -f "$@" >/dev/null 2>&1
 }
 
 # network manager
 if command -v nm-applet >/dev/null 2>&1; then
   PID=$(pgrep -x nm-applet | head -n 1)
-  if [ -n "$PID" ] && { [ "$RESTART" -eq 1 ] || ! has_tray_config "$PID"; }; then
+  if [ -n "$PID" ] && ! up_to_date "$PID"; then
     kill "$PID"
     sleep 0.5
     PID=""
@@ -57,7 +52,7 @@ if command -v blueman-applet >/dev/null 2>&1; then
 
   APPLET_PID=$(pgrep -x blueman-applet | head -n 1)
 
-  if [ -n "$APPLET_PID" ] && { [ "$RESTART" -eq 1 ] || ! has_tray_config "$APPLET_PID"; }; then
+  if [ -n "$APPLET_PID" ] && ! up_to_date "$APPLET_PID"; then
 
     kill "$APPLET_PID"
     pkill -x blueman-tray
