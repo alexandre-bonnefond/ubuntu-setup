@@ -6,6 +6,7 @@ git
 build-essential
 autoconf
 automake
+pkg-config
 libx11-dev
 
 # i3 desktop

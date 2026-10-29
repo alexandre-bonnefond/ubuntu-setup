@@ -11,6 +11,13 @@ filetype plugin indent on
 colorscheme default
 silent! source ~/.config/ubuntu-setup/palette/vim.vim
 
+" running vims follow a palette switch, the colorscheme script sends them SIGUSR1
+" (the redraw goes through feedkeys, a redraw! in the signal autocommand is not shown)
+augroup palette
+  au!
+  au SigUSR1 * silent! source ~/.config/ubuntu-setup/palette/vim.vim | call feedkeys("\<Cmd>redraw!\<CR>", "n")
+augroup end
+
 set clipboard=unnamedplus       " shared clipboard with the system (needs vim-gtk3)
 set number relativenumber
 set splitbelow splitright

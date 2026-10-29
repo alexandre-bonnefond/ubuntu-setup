@@ -7,7 +7,7 @@
 # - each tool includes its file from ~/.config/ubuntu-setup/palette/, a symlink
 #   to palettes/dark or palettes/light of the repo, so switching relinks it
 #   and reloads what is running.
-# - rofi and new vims read the palette when they start, running vims keep theirs.
+# - rofi reads the palette when it starts.
 
 set -euo pipefail
 
@@ -34,7 +34,8 @@ pgrep -x i3 >/dev/null && i3-msg reload >/dev/null
 # the tmux server keeps the old colors otherwise
 tmux source-file "$PALETTE/tmux.conf" 2>/dev/null || true
 
-# kitty rereads its config on SIGUSR1
+# kitty rereads its config on SIGUSR1, vim its palette (SigUSR1 autocommand in ~/.vimrc)
 pkill -USR1 -x kitty || true
+pkill -USR1 -x vim || true
 
 echo "$NEW"
