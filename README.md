@@ -1,106 +1,71 @@
 # ubuntu-setup
 
-My personal Ubuntu 24.04 setup (i3, i3blocks, rofi, tmux, bash, kitty, vim), replacing
-[klaxalk/linux-setup](https://github.com/klaxalk/linux-setup), from which it keeps only what I use.
-Parts are ported from it (MIT License, Copyright (c) 2016 Tomáš Báča, see `LICENSE.linux-setup`);
-files taken from other projects (git-forest, i3blocks-contrib blocks) keep their own license headers.
-The rest is under the GPLv3 (`LICENSE`).
+My Ubuntu 24.04 desktop: i3, i3blocks, rofi, tmux, bash, kitty, vim, ranger and btop, with one
+dark/light switch for all of them. Plain config files linked into `$HOME` with GNU stow.
 
-Status: **step 4** (switched over on the laptop, linux-setup leftovers to remove), linux-setup (`~/git/linux-setup`, branch `alex_rofi_lenovo_setup`)
-stays installed as the reference and safety net until everything is migrated.
+## Install
+
+```bash
+git clone https://github.com/alexandre-bonnefond/ubuntu-setup ~/git/ubuntu-setup
+cd ~/git/ubuntu-setup
+./install.sh            # apt packages, i3blocks 1.5 from source, links every config
+./install.sh tmux kitty # only those configs
+./install.sh --dry-run  # show the links, change nothing
+```
+
+`--no-apt` skips the packages. Existing files are never overwritten: stow lists them and changes
+nothing, move them away and run it again. The bash config is added to `~/.bashrc` with one
+`source` line.
 
 ## Principles
 
-- Only what I use, every file understandable.
-- Plain files linked into place by `install.sh` (e.g. GNU stow), no templating.
-- Dark/light switch (`Super+C`) by swapping small palette files that each tool includes
-  (i3, i3blocks, rofi, tmux, kitty, vim), instead of linux-setup's epigen profiles.
-- No surprises: no `git` wrapper that redeploys configs, no hidden caches.
-- Standalone tools stay in their own repos (e.g. `~/git/cmdvault`), hooked in with one line.
+- Only what I use, every file readable.
+- Plain files linked into place, no templating, no hidden caches, no wrapper redeploying configs.
+- Dark/light switch by swapping small palette files that each tool includes.
+- Standalone tools live in their own repos and are hooked in with one line:
+  [netscan](https://github.com/alexandre-bonnefond/netscan) (`Super+N`, bar icon) and
+  [cmdvault](https://github.com/alexandre-bonnefond/cmdvault).
+
+## What's inside
+
+All shortcuts are in the cheatsheet (`Super+/` or `?` on the bar), with tabs for menus, windows,
+workspaces, the bar, tmux, bash and vim.
+
+- **i3**: modes (resize, gaps, mouse, pass-through), workspaces, gaps.
+- **i3blocks bar**: CPU, RAM, volume, disk, Tailscale (menu), netscan, bandwidth, power profile
+  (menu), battery, keyboard layout, clock, break reminder, cheatsheet, screen layouts, power
+  menu, tray (nm-applet and blueman, icons following the colorscheme).
+- **rofi**: launcher (`Alt+D`) and menus sharing one theme (tiles, list and strip layouts):
+  power (lock, logout, suspend, reboot, shutdown), screen layouts (arandr), colorscheme,
+  clipboard history (CopyQ), Tailscale, power profile, break reminder, cheatsheet.
+- **tmux**: starts in every kitty window, prefix `Ctrl+A`, vim-aware pane navigation
+  (`Ctrl+H/J/K/L`), splits in the current folder, copy to the clipboard, session list, menus to
+  mount and unmount drives.
+- **bash**: git aliases, `auto-retry` / `ssh-auto-retry`, small helpers.
+- **vim**: no plugins, a few mappings (`jk` to leave insert mode, splits and tabs navigation,
+  replace helpers, `:w!!` to save with sudo).
+- **kitty**, **ranger** and **btop** (TTY theme, follows the terminal colors).
+
+## Dark / light
+
+`Super+C` or `colorscheme dark|light|toggle`. `~/.config/ubuntu-setup/palette` links to
+`palettes/dark` or `palettes/light`, and each config includes its file from there. Switching
+relinks it and reloads i3, tmux, kitty and running vims.
 
 ## Layout
 
-- `install.sh`: apt packages from `packages.txt`, i3blocks 1.5 from source (Ubuntu ships
-  1.4), then `stow --no-folding` of `home/*` into `$HOME`. `./install.sh tmux kitty` links
-  only those, `--no-apt` skips apt, `--dry-run` only shows the links. Existing files are
-  never overwritten: stow lists them and changes nothing.
-- `home/<tool>/`: one stow package per tool, mirroring `$HOME`
-  (e.g. `home/tmux/.config/tmux/tmux.conf`). Terminal scripts go in `home/bin/.local/bin/`,
-  the i3 menus and helpers in `home/i3/.config/i3/scripts/`, the bar blocks in
+- `install.sh`, `packages.txt`: apt packages and stow links.
+- `home/<tool>/`: one stow package per tool, mirroring `$HOME`. Terminal scripts are in
+  `home/bin/.local/bin/`, the i3 menus in `home/i3/.config/i3/scripts/`, the bar blocks in
   `home/i3blocks/.config/i3blocks/blocks/`.
 - `palettes/{dark,light}/`: one small file per tool (`i3.conf`, `rofi.rasi`, `tmux.conf`,
-  `kitty.conf`, `vim.vim`, `colors.sh` for the scripts and i3blocks blocks).
-  `~/.config/ubuntu-setup/palette` links to the active one and every config includes its
-  file from there. For i3 the palette is the parent: `~/.config/i3/config` includes the
-  palette, which sets the color variables and includes `main.conf` (i3 variables set in an
-  included file are not visible outside of it). `colorscheme dark|light|toggle` relinks it and reloads i3, tmux and
-  kitty.
+  `kitty.conf`, `vim.vim`, `colors.sh` for the scripts and bar blocks). For i3 the palette is
+  the parent: `~/.config/i3/config` includes it, and it sets the color variables then includes
+  `main.conf` (i3 variables set in an included file are not visible outside of it).
 
-## Inventory
+## Credits and license
 
-### Keep
-
-- **i3**: all current shortcuts (see the cheatsheet), modes (resize, gaps, mouse,
-  pass-through), workspaces, gaps.
-- **i3blocks bar**: CPU %, RAM %, volume, disk, Tailscale (logo, menu), netscan
-  (network icon, devices of the local networks to SSH into, `~/git/netscan`), bandwidth,
-  power profile (menu), battery (orange <= 30 %, red <= 15 %), keyboard layout, clock,
-  break reminder (menu, `~/.config/i3-break.conf`), cheatsheet `?`, screen layouts,
-  power menu, tray (nm-applet / blueman with icons matching the colorscheme).
-- **rofi**: Alt+D launcher, shared menu theme (tiles / list / strip templates),
-  neutral dark and light palettes.
-- **Scripts**: power menu (lock with grab diagnostics, logout, suspend, reboot, shutdown),
-  screen layouts (arandr `~/.screenlayout`, i3 restart), colorscheme, clipboard history
-  (CopyQ), Tailscale menu, power profile menu, break reminder, cheatsheet, brightness
-  through logind, tray watchdog.
-- **tmux**: everything
-  - auto-start in every terminal, prefix `Ctrl+A`
-  - `Ctrl+T` new window, `Alt+U/I` and `Shift+arrows` next/previous, `Ctrl+Shift+arrows` move
-  - `Ctrl+9` / `Ctrl+0` splits in the current folder
-  - `Ctrl+H/J/K/L` and `Alt+arrows` pane navigation (vim-aware), prefix + `Ctrl+H/J/K/L` resize
-  - `F2` copy mode, `v` / `y` to the clipboard, prefix + `p` paste
-  - prefix + `k` kill session, `:qa` quit session, prefix + `r` reload, prefix + `s` sessions
-  - prefix + `m` / `u` / `e` mount / unmount / end experiment scripts, `Ctrl+P` vim file search
-- **bash**: everything from `dotbashrc` / `shell/commons.sh` except `catkin`
-  - `sb`, `gs`, `glog`, `flog`, `gppl`, `gppo`, `gcmp`, `gr`, `git2ssh`, `git2https`,
-    `killp`, `:q`, `ranger` / `ra`, `auto-retry`, `ssh-auto-retry`, `papis`, `slack`,
-    `octave`, `demangle`, `getVideoThumbnail`, `indie`
-  - keep sourcing `~/git/mrs_uav_development/shell_additions/shell_additions.sh` (ROS 2, MRS)
-- **vim**: minimal config, no plugins, basic editing only
-  - `jk` to leave insert mode, `H` / `L` line start/end, `Ctrl+H/J/K/L` splits,
-    `Shift+J/K` tabs, `,g` reindent + trim, `,d` delete without yank, `,fr` / `,frl`
-    replace, `*` without jumping, visual `//` search, `:w!!` sudo save,
-    `,r` / `,p` / `,a` toggles (leader `,` and Space)
-- **ranger**: config from linux-setup.
-- **kitty** replaces urxvt (Alt+Return), with dark/light palettes.
-- **btop** replaces htop.
-
-### Drop
-
-zsh, catkin (ROS 1), zathura, urxvt / `.Xresources`, htop config, the 44 vim plugins
-(coc, telescope, nerdtree, vimtex, vimwiki, ...), LaTeX, papis-vim, pdfpc, epigen
-profiles and the other users' sections (Tomas, Matous, Pavel, ...), linux-setup's
-`git` wrapper, unused submodules.
-
-## Plan
-
-1. ~~Skeleton: `install.sh` (stow links, apt packages), palette system, repo layout.~~
-2. ~~i3 + i3blocks + scripts + rofi (port from linux-setup, drop the profile blocks).~~
-3. ~~tmux, bash, vim, kitty, ranger, btop.~~
-4. Switch over piece by piece on this laptop, then remove the linux-setup links.
-   - i3 reads `~/.config/i3/config` before `~/.i3/config`, so `./install.sh i3` switches i3
-     over at the next reload (`./install.sh i3 i3blocks rofi fonts bin` together).
-   - `/usr/bin/xkblayout-state` links into linux-setup: remove it before deleting
-     linux-setup, `install.sh` then builds it into `/usr/local/bin`.
-   - `~/.config/fontconfig/fonts.conf` (font hinting) is now in `home/fonts`: remove
-     linux-setup's link, then `./install.sh fonts`.
-   - Move away `~/.tmux.conf` (linux-setup's copy) and `~/.config/ranger/*` (links into
-     linux-setup) first, stow refuses to replace them.
-   - `~/.bashrc`: `install.sh bash` appends `source ~/.config/bash/bashrc`, then delete the
-     `source .../linux-setup/appconfig/bash/dotbashrc` line and the `PROFILES` and
-     `USE_ATHAME` exports.
-   - apt `vim-gtk3` takes over the `vim` command from nvim, apt `btop` comes before the
-     snap in `PATH` (the snap reads its config from `~/snap/btop`).
-5. ~~Test a fresh install~~ (Ubuntu 24.04 container: install, configs, i3 / kitty / tmux /
-   vim / rofi on a virtual display). The hardware parts (tray, brightness, sound keys,
-   suspend) are only tested on the laptop.
+Started from [klaxalk/linux-setup](https://github.com/klaxalk/linux-setup): the ported parts are
+under its MIT License (Copyright (c) 2016 Tomáš Báča, see `LICENSE.linux-setup`). Files taken from
+other projects (git-forest, i3blocks-contrib blocks) keep their own license headers. The rest is
+under the GPLv3 (`LICENSE`).
