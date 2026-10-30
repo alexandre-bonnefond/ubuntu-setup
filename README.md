@@ -2,8 +2,9 @@
 
 My personal Ubuntu 24.04 setup (i3, i3blocks, rofi, tmux, bash, kitty, vim), replacing
 [klaxalk/linux-setup](https://github.com/klaxalk/linux-setup), from which it keeps only what I use.
-Parts are ported from it (MIT License, Copyright (c) 2016 Tomáš Báča); files taken from other
-projects (git-forest, i3blocks-contrib blocks) keep their own license headers.
+Parts are ported from it (MIT License, Copyright (c) 2016 Tomáš Báča, see `LICENSE.linux-setup`);
+files taken from other projects (git-forest, i3blocks-contrib blocks) keep their own license headers.
+The rest is under the GPLv3 (`LICENSE`).
 
 Status: **step 4** (switched over on the laptop, linux-setup leftovers to remove), linux-setup (`~/git/linux-setup`, branch `alex_rofi_lenovo_setup`)
 stays installed as the reference and safety net until everything is migrated.
