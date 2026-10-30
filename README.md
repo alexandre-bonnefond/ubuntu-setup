@@ -41,7 +41,8 @@ stays installed as the reference and safety net until everything is migrated.
 
 - **i3**: all current shortcuts (see the cheatsheet), modes (resize, gaps, mouse,
   pass-through), workspaces, gaps.
-- **i3blocks bar**: CPU %, RAM %, volume, disk, Tailscale (logo, menu), bandwidth,
+- **i3blocks bar**: CPU %, RAM %, volume, disk, Tailscale (logo, menu), netscan
+  (network icon, devices of the local networks to SSH into, `~/git/netscan`), bandwidth,
   power profile (menu), battery (orange <= 30 %, red <= 15 %), keyboard layout, clock,
   break reminder (menu, `~/.config/i3-break.conf`), cheatsheet `?`, screen layouts,
   power menu, tray (nm-applet / blueman with icons matching the colorscheme).

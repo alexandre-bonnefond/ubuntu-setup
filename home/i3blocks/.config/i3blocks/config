@@ -35,6 +35,12 @@ signal=12
 markup=pango
 separator=true
 
+# netscan (~/git/netscan): click scans the local networks, pick a device to SSH into it
+[netscan]
+full_text=
+command=setsid -f ~/.local/bin/netscan rofi >/dev/null 2>&1
+separator=true
+
 [bandwidth]
 interval=1
 separator=true

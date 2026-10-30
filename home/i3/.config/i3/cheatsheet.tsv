@@ -38,6 +38,7 @@ Bar	CPU %	Click: btop	kitty -e btop
 Bar	RAM %	Click: RAM and swap usage, biggest processes
 Bar	♪ Volume	Right click: mute, scroll: ±5% (highlighted when not muted)
 Bar	Tailscale logo	Click: connect, exit node, peers, copy IP (grey = off)	~/.config/i3/scripts/tailscale_menu.sh
+Bar	Network icon	Click: scan the local networks, a tab per subnet, Enter SSHs into the device (~/git/netscan)	~/.local/bin/netscan rofi
 Bar	Power profile	Click: power saver / balanced / performance	~/.config/i3/scripts/power_profile_menu.sh
 Bar	Keyboard layout	Highlighted when not 'us' (Right Ctrl + Right Shift switches)
 Bar	Break timer (clock)	Click: take a break, restart, pause 1 h, rhythm (orange = break due)	~/.config/i3/scripts/break_menu.sh
