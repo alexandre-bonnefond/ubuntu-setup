@@ -80,7 +80,6 @@ Bash	auto-retry CMD	Rerun a command until it succeeds
 Bash	ssh-auto-retry HOST	ssh, retried until it connects
 Bash	colorscheme dark|light	Switch the palette from the terminal (same as Super + C)
 Bash	indie	Today's lunch menu of the Kathmandu restaurant
-Bash	slack [mrs|eagle]	Slack in the terminal (slack-term)
 Bash	papis	Paper library (no arguments: papis edit)
 Bash	getVideoThumbnail V [T]	Frame of the video V (at time T, default 1 s) as V_thumbnail.jpg
 Bash	demangle	Demangle C++ symbols (c++filt)

@@ -106,19 +106,6 @@ papis() {
   command papis "$@"
 }
 
-# slack in the terminal (slack-term), the workspace from the argument or a rofi menu
-slack() {
-  local name cfg
-  name=${1:-$(printf 'mrs\neagle' | rofi -i -dmenu -no-custom -p "Select slack")}
-  mkdir -p ~/git/notes/slack
-  case "$name" in
-    mrs) cfg=~/git/notes/slack/mrsworkspace ;;
-    eagle) cfg=~/git/notes/slack/drone-eagleone ;;
-    *) return 1 ;;
-  esac
-  slack-term -config "$cfg"
-}
-
 # first frame (or the frame at $2, e.g. 00:00:05) of a video as <name>_thumbnail.jpg
 getVideoThumbnail() {
   if [ $# -eq 0 ]; then
