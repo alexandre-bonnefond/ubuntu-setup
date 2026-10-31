@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Running Docker containers for i3blocks, with the Docker logo (Simple Icons font,
+# home/fonts). Gray when none runs, hidden when the docker daemon does not answer.
+# Left click opens lazydocker in kitty, right click the menu of the running
+# containers (a shell in the picked one).
+#
+# Needs markup=pango in the block config.
+
+LOGO="<span font_desc='Simple Icons 11'>"$''"</span>"
+
+command -v docker >/dev/null 2>&1 || exit 0
+
+case "$BLOCK_BUTTON" in
+  1) setsid -f kitty -e lazydocker >/dev/null 2>&1 ;;
+  3) setsid -f ~/.config/i3/scripts/docker_menu.sh >/dev/null 2>&1 </dev/null ;;
+esac
+
+IDS=$(docker ps -q 2>/dev/null) || exit 0
+COUNT=$(printf '%s' "$IDS" | grep -c .)
+
+echo "$LOGO $COUNT"
+echo "$LOGO"
+[ "$COUNT" -eq 0 ] && echo "$COLOR_MUTED"
+exit 0

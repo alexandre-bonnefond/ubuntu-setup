@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Tailscale status for i3blocks with the official logo (Simple Icons font,
-# ~/.local/share/fonts/SimpleIcons.ttf), any click opens the tailscale menu.
+# home/fonts), any click opens the tailscale menu.
 #
 # Needs markup=pango in the block config.
 

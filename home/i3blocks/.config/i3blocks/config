@@ -41,6 +41,13 @@ full_text=
 command=setsid -f ~/.local/bin/netscan rofi >/dev/null 2>&1
 separator=true
 
+# Docker logo (Simple Icons font) and the number of running containers, gray when
+# none runs, left click opens lazydocker, right click a shell in a running container
+[docker]
+interval=5
+markup=pango
+separator=true
+
 [bandwidth]
 interval=1
 separator=true

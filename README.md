@@ -32,7 +32,9 @@ All shortcuts are in the cheatsheet (`Super+/` or `?` on the bar), with tabs for
 workspaces, the bar, tmux, bash and vim.
 
 - **i3**: modes (resize, gaps, mouse, pass-through), workspaces, gaps.
-- **i3blocks bar**: CPU, RAM, volume, disk, Tailscale (menu), netscan, bandwidth, power profile
+- **i3blocks bar**: CPU, RAM, volume, disk, Tailscale (menu), netscan, Docker (running
+  containers, click opens [lazydocker](https://github.com/jesseduffield/lazydocker), not
+  installed by `install.sh`, right click a shell in a container), bandwidth, power profile
   (menu), battery, keyboard layout, clock, break reminder, cheatsheet, screen layouts, power
   menu, tray (nm-applet and blueman, icons following the colorscheme).
 - **rofi**: launcher (`Alt+D`) and menus sharing one theme (tiles, list and strip layouts):
