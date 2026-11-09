@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# xsecurelock saver module (XSECURELOCK_SAVER, see lock.sh), started once per screen:
+# the tree_cycle ASCII animation in a urxvt embedded into the screen's saver window.
+# xsecurelock sends SIGTERM to unlock, urxvt then closes and hangs up the animation.
+#
+# 8 frames per second: about 10 % of one core per 1080p screen (15 fps doubles it).
+
+exec urxvt -embed "$XSCREENSAVER_WINDOW" +sb -b 0 -bg '#0B1220' -fg '#5f5f87' \
+  -fn 'xft:Inconsolata:size=14' -e ~/.local/bin/tree_cycle --fps 8

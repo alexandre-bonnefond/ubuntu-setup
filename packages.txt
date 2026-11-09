@@ -11,7 +11,9 @@ libx11-dev
 
 # i3 desktop
 i3-wm
-i3lock
+xsecurelock
+xss-lock
+rxvt-unicode
 rofi
 compton
 dunst

@@ -17,31 +17,26 @@
 #   });
 #   EOF
 
-source "$(dirname "$(readlink -f "$0")")/lib/rofi_menu.sh"
+SCRIPTS=$(dirname "$(readlink -f "$0")")
+source "$SCRIPTS/lib/rofi_menu.sh"
 
 notify() {
   notify-send -u "${2:-low}" -t 5000 "Power menu" "$1" -h string:x-canonical-private-synchronous:powermenu
 }
 
-# name of the app holding an active mouse/keyboard grab, asks X to log its grabs
-grab_holder() {
-  local log
-  log=$(ls -t /var/log/Xorg.0.log ~/.local/share/xorg/Xorg.0.log 2>/dev/null | head -n 1)
-  [ -r "$log" ] && command -v xdotool >/dev/null 2>&1 || return
-  local lines
-  lines=$(wc -l < "$log")
-  xdotool key XF86LogGrabInfo
-  sleep 0.3
-  tail -n +"$(( lines + 1 ))" "$log" | awk '/Active grab/ { getline; sub(/.*client pid [0-9]+ /, ""); print $1; exit }' | xargs -r basename
+# xss-lock (i3 config) runs lock.sh on lock-session and before any suspend, so the screen is
+# locked when the machine wakes up. Without xss-lock, lock.sh is run directly.
+xss_lock() {
+  pgrep -u "$USER" -x xss-lock >/dev/null
 }
 
-# i3lock fails when another app holds the mouse/keyboard (e.g., a stuck drag or menu)
 lock() {
-  i3lock -c 0B1220 && return 0
-  local holder
-  holder=$(grab_holder)
-  notify "Could not lock the screen${holder:+, '$holder' is holding the mouse/keyboard.\nClose it or click into it, then try again}" critical
-  return 1
+  if xss_lock; then loginctl lock-session; else setsid -f "$SCRIPTS/lock.sh"; fi
+}
+
+# suspend / hibernate
+sleep_as() {
+  if xss_lock; then systemctl "$1"; else setsid -f "$SCRIPTS/lock.sh" -- systemctl "$1"; fi
 }
 
 # logind answers yes/no/challenge, Ubuntu disables hibernation by default
@@ -64,10 +59,10 @@ CHOICE=$(rofi_menu "$USER@$(hostname)" "$MESSAGE" "" \
 case "${ACTIONS[$CHOICE]}" in
   lock) lock ;;
   logout) i3-msg exit ;;
-  suspend) lock && systemctl suspend ;;
+  suspend) sleep_as suspend ;;
   hibernate)
     if can Hibernate; then
-      lock && systemctl hibernate
+      sleep_as hibernate
     else
       notify "Hibernation is disabled by Ubuntu (polkit).\nSee the comment at the top of ~/.config/i3/scripts/power_menu.sh" critical
     fi

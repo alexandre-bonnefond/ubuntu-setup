@@ -32,7 +32,8 @@ All shortcuts are in the cheatsheet (`Super+/` or `?` on the bar), with tabs for
 workspaces, the bar, tmux, bash and vim.
 
 - **i3**: modes (resize, gaps, mouse, pass-through), workspaces, gaps.
-- **i3blocks bar**: CPU, RAM, volume, disk, Tailscale (menu), netscan, Docker (running
+- **i3blocks bar**: CPU (orange warning sign when an orphaned process burns CPU, right click
+  to kill it), RAM, volume, disk, Tailscale (menu), netscan, Docker (running
   containers, click opens [lazydocker](https://github.com/jesseduffield/lazydocker), not
   installed by `install.sh`, right click a shell in a container), bandwidth, power profile
   (menu), battery, keyboard layout, clock, break reminder, cheatsheet, screen layouts, power
@@ -40,10 +41,14 @@ workspaces, the bar, tmux, bash and vim.
 - **rofi**: launcher (`Alt+D`) and menus sharing one theme (tiles, list and strip layouts):
   power (lock, logout, suspend, reboot, shutdown), screen layouts (arandr), colorscheme,
   clipboard history (CopyQ), Tailscale, power profile, break reminder, cheatsheet.
+- **lock screen**: xsecurelock with an ASCII animation (`tree_cycle`, a tree growing through a
+  day of weather) on each screen and the password prompt over it, locked by xss-lock before
+  suspend (lid included) and after 10 minutes without input.
 - **tmux**: starts in every kitty window, prefix `Ctrl+A`, vim-aware pane navigation
   (`Ctrl+H/J/K/L`), splits in the current folder, copy to the clipboard, session list, menus to
   mount and unmount drives.
-- **bash**: git aliases, `auto-retry` / `ssh-auto-retry`, small helpers.
+- **bash**: git aliases, `auto-retry` / `ssh-auto-retry`, `strays` (orphaned processes still
+  using CPU), small helpers.
 - **vim**: no plugins, a few mappings (`jk` to leave insert mode, splits and tabs navigation,
   replace helpers, `:w!!` to save with sudo).
 - **kitty**, **ranger** and **btop** (TTY theme, follows the terminal colors).
