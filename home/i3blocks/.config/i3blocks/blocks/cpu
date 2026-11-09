@@ -1,17 +1,32 @@
 #!/bin/bash
 
 # CPU usage in percent, computed from /proc/stat, no dependencies.
-# Runs as a persistent i3blocks block (interval=persist, format=json).
+# Runs as a persistent i3blocks block (interval=persist, format=json, markup=pango).
 #
-# Turns orange above WARN and red above CRIT, left click opens btop.
+# The text turns orange above WARN and red above CRIT. An orange warning sign next to it
+# means an orphaned process is burning CPU (~/.local/bin/strays: above STRAY_MIN % of one
+# core over STRAY_EVERY - 5 seconds, checked every STRAY_EVERY seconds in the background).
+# Left click opens btop, right click lists the strays.
 
 INTERVAL=${INTERVAL:-2}
 WARN=${WARN:-70}
 CRIT=${CRIT:-90}
+STRAY_MIN=${STRAY_MIN:-30}
+STRAY_EVERY=${STRAY_EVERY:-30}
+STRAY_FLAG=${XDG_RUNTIME_DIR:-/tmp}/i3blocks-cpu-stray.$$
+STRAYS=~/.local/bin/strays
 
-if [ -n "$BLOCK_BUTTON" ]; then
-  [ "$BLOCK_BUTTON" == "1" ] && setsid -f kitty -e btop >/dev/null 2>&1
-fi
+trap 'rm -f "$STRAY_FLAG"; kill $(jobs -p) 2>/dev/null' EXIT
+
+# a persistent block gets its clicks on stdin, one JSON line per click (fd 3: a background
+# job of a script has /dev/null as stdin otherwise)
+exec 3<&0
+while read -r click <&3; do
+  case $(grep -o '"button":"\?[0-9]*' <<< "$click" | tr -dc '0-9') in
+    1) setsid -f kitty -e btop >/dev/null 2>&1 ;;
+    3) setsid -f ~/.config/i3/scripts/strays_menu.sh >/dev/null 2>&1 </dev/null ;;
+  esac
+done &
 
 read_stat() {
   # user nice system idle iowait irq softirq steal
@@ -23,10 +38,17 @@ read_stat() {
 read_stat
 PREV_BUSY=$BUSY
 PREV_TOTAL=$TOTAL
+LAST_CHECK=0
 
 while true; do
 
   sleep "$INTERVAL"
+
+  if [ -x "$STRAYS" ] && [ $(( SECONDS - LAST_CHECK )) -ge "$STRAY_EVERY" ]; then
+    LAST_CHECK=$SECONDS
+    { "$STRAYS" -q -s $(( STRAY_EVERY - 5 )) "$STRAY_MIN" && touch "$STRAY_FLAG" \
+        || rm -f "$STRAY_FLAG"; } </dev/null >/dev/null 2>&1 &
+  fi
 
   read_stat
   DIFF_TOTAL=$(( TOTAL - PREV_TOTAL ))
@@ -43,6 +65,12 @@ while true; do
     COLOR=""
   fi
 
-  printf '{"full_text":"CPU %d%%"%s}\n' "$USAGE" "$COLOR"
+  if [ -e "$STRAY_FLAG" ]; then
+    SIGN=" <span color='$COLOR_WARN'>⚠</span>"
+  else
+    SIGN=""
+  fi
+
+  printf '{"full_text":"CPU %d%%%s"%s}\n' "$USAGE" "$SIGN" "$COLOR"
 
 done
