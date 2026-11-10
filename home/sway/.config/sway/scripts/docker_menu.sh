@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Docker menu, opened by right clicking the docker logo in the i3 bar.
+# Docker menu, opened by right clicking the docker logo in the bar.
 #
 # Lists the running containers (name, image, uptime), the picked one gets a
 # shell (bash, else sh) in kitty. The terminal stays open when docker exec fails

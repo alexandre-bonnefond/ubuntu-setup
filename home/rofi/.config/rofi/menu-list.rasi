@@ -1,4 +1,4 @@
-/* i3 menus: compact vertical list with the icon next to the label */
+/* sway menus: compact vertical list with the icon next to the label */
 
 @import "menu-common.rasi"
 

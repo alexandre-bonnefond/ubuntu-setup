@@ -1,4 +1,4 @@
-/* i3 menus: grid of tiles with the icon above the label, like the launcher */
+/* sway menus: grid of tiles with the icon above the label, like the launcher */
 
 @import "menu-common.rasi"
 

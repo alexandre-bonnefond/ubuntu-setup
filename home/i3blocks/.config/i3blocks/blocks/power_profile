@@ -5,7 +5,7 @@
 command -v powerprofilesctl >/dev/null 2>&1 || exit 0
 
 if [ -n "$BLOCK_BUTTON" ]; then
-  setsid -f ~/.config/i3/scripts/power_profile_menu.sh >/dev/null 2>&1 </dev/null
+  setsid -f ~/.config/sway/scripts/power_profile_menu.sh >/dev/null 2>&1 </dev/null
 fi
 
 case "$(powerprofilesctl get 2>/dev/null)" in

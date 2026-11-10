@@ -1,5 +1,5 @@
 /*
- * Shared look of the i3 menus (power, screens, colorscheme, ...), same colors
+ * Shared look of the sway menus (power, screens, colorscheme, ...), same colors
  * as the $mod+d launcher (launcher.rasi). Imported by menu-*.rasi.
  * Colors come from the active palette (~/.config/ubuntu-setup/palette/rofi.rasi, $mod2+c switches it).
  */

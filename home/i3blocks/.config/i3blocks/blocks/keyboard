@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
 
-# Active keyboard layout (xkblayout-state), urgent when it is not 'us'.
-# The layouts and the switch key come from /etc/default/keyboard.
+# Active keyboard layout, urgent when it is not 'us'.
+# The layouts and the switch key come from /etc/default/keyboard (applied by
+# ~/.config/sway/scripts/keyboard_layout.sh), sway reports the active one by index.
 
-LAYOUT=$(xkblayout-state print "%s")
+INDEX=$(swaymsg -t get_inputs 2>/dev/null | jq -r '[.[] | select(.type == "keyboard") | .xkb_active_layout_index // empty][0] // 0')
+
+XKBLAYOUT=""
+# shellcheck source=/dev/null
+[ -r /etc/default/keyboard ] && source /etc/default/keyboard
+IFS=, read -ra LAYOUTS <<< "${XKBLAYOUT:-us}"
+LAYOUT="${LAYOUTS[$INDEX]:-${LAYOUTS[0]}}"
 
 echo "$LAYOUT"
 

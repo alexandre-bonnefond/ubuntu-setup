@@ -2,7 +2,7 @@
 #
 # Blocks run ~/.config/i3blocks/blocks/<name> unless they set their own command,
 # with the colors of the active palette in the environment ($COLOR_WARN, ...).
-# The default text color is the bar's statusline color from the i3 palette.
+# The default text color is the bar's statusline color from the sway palette.
 
 command=. ~/.config/ubuntu-setup/palette/colors.sh; exec ~/.config/i3blocks/blocks/$BLOCK_NAME
 separator_block_width=15
@@ -75,7 +75,7 @@ command=date '+%d/%m/%Y %H:%M:%S'
 interval=1
 separator=true
 
-# break reminder: time until the next break, click opens the break menu (~/.config/i3-break.conf)
+# break reminder: time until the next break, click opens the break menu (~/.config/break-reminder.conf)
 [break]
 interval=5
 signal=14
@@ -84,17 +84,17 @@ separator=true
 # cheatsheet of the shortcuts and bar icons
 [cheatsheet]
 full_text=
-command=setsid -f ~/.config/i3/scripts/cheatsheet.sh >/dev/null 2>&1
+command=setsid -f ~/.config/sway/scripts/cheatsheet.sh >/dev/null 2>&1
 separator=true
 
-# monitor setup menu, lists the arandr layouts from ~/.screenlayout
+# monitor setup menu, lists the saved layouts from ~/.screenlayout
 [screenlayout]
 full_text=
-command=~/.config/i3/scripts/screen_layout_menu.sh
+command=~/.config/sway/scripts/screen_layout_menu.sh
 separator=true
 
 # power menu
 [power]
 full_text=
-command=~/.config/i3/scripts/power_menu.sh
+command=~/.config/sway/scripts/power_menu.sh
 separator=true

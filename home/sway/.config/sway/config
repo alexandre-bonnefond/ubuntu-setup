@@ -1,0 +1,5 @@
+# sway entry point: the active palette ($mod2+c switches it) sets the color
+# variables, then main.conf uses them (sway variables are global, unlike i3's).
+
+include ~/.config/ubuntu-setup/palette/sway.conf
+include ~/.config/sway/main.conf

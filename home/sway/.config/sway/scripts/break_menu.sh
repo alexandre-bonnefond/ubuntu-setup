@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Break reminder menu, opened by clicking the [break] block in the i3 bar:
+# Break reminder menu, opened by clicking the [break] block in the bar:
 # take a break now, restart the work timer, snooze, turn off/on, settings.
 
 DIR="$(dirname "$(readlink -f "$0")")"

@@ -3,15 +3,15 @@
 # Break reminder for i3blocks (interval=5, signal=14): counts down the work time,
 # notifies when it is time for a break, a click opens the break menu.
 #
-# Config: ~/.config/i3-break.conf, see ~/.config/i3/scripts/lib/break_state.sh
+# Config: ~/.config/break-reminder.conf, see ~/.config/sway/scripts/lib/break_state.sh
 
-source ~/.config/i3/scripts/lib/break_state.sh
+source ~/.config/sway/scripts/lib/break_state.sh
 
 ICON_WORK=$''   # clock
 ICON_BREAK=$''  # coffee
 
 if [ -n "$BLOCK_BUTTON" ]; then
-  setsid -f ~/.config/i3/scripts/break_menu.sh >/dev/null 2>&1 </dev/null
+  setsid -f ~/.config/sway/scripts/break_menu.sh >/dev/null 2>&1 </dev/null
 fi
 
 break_load

@@ -2,14 +2,14 @@
 
 # Searchable cheatsheet of the shortcuts, aliases and bar icons ($mod2+slash, ? icon in the bar).
 #
-# - one tab per section of ~/.config/i3/cheatsheet.tsv, plus 'All' to search everything,
+# - one tab per section of ~/.config/sway/cheatsheet.tsv, plus 'All' to search everything,
 #   Ctrl+Tab / Ctrl+Shift+Tab or a click switch the tabs
 # - Enter runs the entry's command when it has one (e.g., opens that menu)
 # - each tab is a rofi script mode: rofi runs 'cheatsheet.sh --tab NAME' to list its rows,
 #   and again with ROFI_RETV=1 and ROFI_INFO=<row number> when a row is picked. The row is
 #   saved and its command runs once rofi is closed (a menu could not open while rofi is up).
 
-SHEET="$HOME/.config/i3/cheatsheet.tsv"
+SHEET="$HOME/.config/sway/cheatsheet.tsv"
 THEME="$HOME/.config/rofi/cheatsheet.rasi"
 PICKED="${XDG_RUNTIME_DIR:-/tmp}/cheatsheet-picked"
 

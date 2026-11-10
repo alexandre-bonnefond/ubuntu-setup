@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 
 # Shared state of the break reminder, used by the i3blocks [break] block and by
-# ~/.config/i3/scripts/break_menu.sh.
+# ~/.config/sway/scripts/break_menu.sh.
 #
-# Config (created with defaults on the first run): ~/.config/i3-break.conf
+# Config (created with defaults on the first run): ~/.config/break-reminder.conf
 #   WORK_MINUTES   work time before a break
 #   BREAK_MINUTES  length of a break
 #   REMIND_MINUTES repeat the notification this often while a break is due
 #   IDLE_MINUTES   being away (no keyboard/mouse, or suspended) this long counts as a break
 #
-# State: ~/.cache/i3-break/state
+# State: ~/.cache/break-reminder/state
 #   MODE   work | due | break | snooze | off
 #   START  when the current work period started [epoch s]
 #   UNTIL  end of the break or of the snooze [epoch s]
 #   LAST_NOTIFY, LAST_TICK [epoch s]
 
-BREAK_CONFIG="$HOME/.config/i3-break.conf"
-BREAK_STATE_DIR="$HOME/.cache/i3-break"
+BREAK_CONFIG="$HOME/.config/break-reminder.conf"
+BREAK_STATE_DIR="$HOME/.cache/break-reminder"
 BREAK_STATE="$BREAK_STATE_DIR/state"
 BREAK_SIGNAL=14  # signal= of the [break] block in the i3blocks config
 
@@ -52,7 +52,7 @@ break_save() {
 break_save_config() {
   mkdir -p "$(dirname "$BREAK_CONFIG")"
   cat > "$BREAK_CONFIG" <<EOF
-# Break reminder (i3 bar), see ~/.config/i3/scripts/lib/break_state.sh
+# Break reminder (bar), see ~/.config/sway/scripts/lib/break_state.sh
 # work time before a break [min]
 WORK_MINUTES=$WORK_MINUTES
 # length of a break [min]

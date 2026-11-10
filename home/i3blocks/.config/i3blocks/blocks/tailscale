@@ -11,7 +11,7 @@ LOGO="<span font_desc='Simple Icons 11'>"$''"</span>"
 command -v tailscale >/dev/null 2>&1 || exit 0
 
 if [ -n "$BLOCK_BUTTON" ]; then
-  setsid -f ~/.config/i3/scripts/tailscale_menu.sh >/dev/null 2>&1 </dev/null
+  setsid -f ~/.config/sway/scripts/tailscale_menu.sh >/dev/null 2>&1 </dev/null
 fi
 
 STATUS=$(tailscale status --json 2>/dev/null)

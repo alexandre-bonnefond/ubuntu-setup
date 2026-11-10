@@ -44,24 +44,19 @@ fi
 
 # #}
 
-# #{ i3blocks 1.5 from source (Ubuntu ships 1.4, with the old config format)
+# #{ sway login entry with --unsupported-gpu when the NVIDIA driver is loaded
 
-if [ "$APT" = 1 ] && ! i3blocks -V 2>/dev/null | grep -q '^i3blocks 1\.5'; then
-  BUILD=$(mktemp -d)
-  git clone --depth 1 --branch 1.5 https://github.com/vivien/i3blocks "$BUILD/i3blocks"
-  (cd "$BUILD/i3blocks" && ./autogen.sh && ./configure && make && sudo make install)
-  rm -rf "$BUILD"
-fi
+# sway refuses to start next to the proprietary NVIDIA driver (even when the Intel
+# GPU drives the screen, as with NVIDIA on-demand) unless given --unsupported-gpu.
+# The entry 'Sway (NVIDIA)' appears in the gear menu of the login screen.
 
-# #}
-
-# #{ xkblayout-state from source (keyboard layout block of the bar, not packaged)
-
-if [ "$APT" = 1 ] && ! command -v xkblayout-state >/dev/null; then
-  BUILD=$(mktemp -d)
-  git clone --depth 1 https://github.com/nonpop/xkblayout-state "$BUILD/xkblayout-state"
-  (cd "$BUILD/xkblayout-state" && make && sudo install -m 755 xkblayout-state /usr/local/bin/)
-  rm -rf "$BUILD"
+SESSION=/usr/local/share/wayland-sessions/sway-nvidia.desktop
+if [ "$APT" = 1 ] && grep -q '^nvidia ' /proc/modules && [ ! -e "$SESSION" ]; then
+  sudo mkdir -p "$(dirname "$SESSION")"
+  printf '%s\n' '[Desktop Entry]' 'Name=Sway (NVIDIA)' \
+    'Comment=An i3-compatible Wayland compositor, next to the proprietary NVIDIA driver' \
+    'Exec=sway --unsupported-gpu' 'Type=Application' 'DesktopNames=sway;wlroots' \
+    | sudo tee "$SESSION" >/dev/null
 fi
 
 # #}

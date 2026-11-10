@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Shared rofi menu for the i3 menus (power, screen layout, colorscheme, ...),
+# Shared rofi menu for the sway menus (power, screen layout, colorscheme, ...),
 # so that they all look the same as the $mod+d launcher.
 #
 # Usage (source this file):

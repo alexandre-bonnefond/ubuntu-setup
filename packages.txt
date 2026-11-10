@@ -1,42 +1,39 @@
-# apt packages installed by install.sh (Ubuntu 24.04), one per line
+# apt packages installed by install.sh (Ubuntu 26.04), one per line
 
-# install.sh itself, i3blocks and xkblayout-state builds
+# install.sh itself
 stow
 git
-build-essential
-autoconf
-automake
-pkg-config
-libx11-dev
 
-# i3 desktop
-i3-wm
-i3lock
+# sway desktop (Wayland, X11 apps run through Xwayland)
+sway
+swaybg
+swaylock
+swayidle
+xwayland
+xdg-desktop-portal-wlr
+xdg-desktop-portal-gtk
 rofi
-compton
 dunst
 libnotify-bin
-feh
-arandr
-x11-xserver-utils
-x11-utils
-xinput
-xdotool
-xdg-utils
-jq
-copyq
-shutter
+wl-clipboard
+cliphist
+grim
+slurp
+swappy
+wdisplays
+webp-pixbuf-loader
 playerctl
+jq
+xdg-utils
+feh
 fonts-font-awesome
 fonts-terminus
 fonts-inconsolata
 
 # i3blocks bar and tray
+i3blocks
 acpi
-sysstat
-suckless-tools
-alsa-utils
-libasound2-plugins
+wireplumber
 pavucontrol
 network-manager-gnome
 blueman
@@ -46,7 +43,6 @@ power-profiles-daemon
 # terminal and tools
 kitty
 tmux
-xclip
 vim-gtk3
 ranger
 w3m-img

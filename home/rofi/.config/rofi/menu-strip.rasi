@@ -1,4 +1,4 @@
-/* i3 menus: a single row of big buttons */
+/* sway menus: a single row of big buttons */
 
 @import "menu-common.rasi"
 

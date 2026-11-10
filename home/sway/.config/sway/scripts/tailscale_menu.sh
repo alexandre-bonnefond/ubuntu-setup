@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Tailscale menu, opened by clicking the tailscale icon in the i3 bar.
+# Tailscale menu, opened by clicking the tailscale icon in the bar.
 #
 # Connect/disconnect, pick an exit node, copy IPs of this machine and of the
 # peers, open the admin console. Changing the state without sudo needs the user
@@ -28,7 +28,7 @@ run() {
 }
 
 copy() {
-  printf '%s' "$1" | xclip -selection clipboard
+  printf '%s' "$1" | wl-copy
   notify "Copied $1"
 }
 

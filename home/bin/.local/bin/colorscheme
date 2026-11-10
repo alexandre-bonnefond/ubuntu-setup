@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Switches the dark/light palette of i3, i3blocks, rofi, tmux, kitty and vim.
+# Switches the dark/light palette of sway, i3blocks, rofi, tmux, kitty and vim.
 #
 # usage: colorscheme [dark|light|toggle]   (no argument prints the active one)
 #
@@ -28,8 +28,8 @@ esac
 
 ln -sfn "$PALETTES/$NEW" "$PALETTE"
 
-# i3 and i3bar (i3blocks and the tray applets restart with it)
-pgrep -x i3 >/dev/null && i3-msg reload >/dev/null
+# sway and swaybar (i3blocks restarts with the bar, the tray icons follow its theme)
+pgrep -x sway >/dev/null && swaymsg reload >/dev/null
 
 # the tmux server keeps the old colors otherwise
 tmux source-file "$PALETTE/tmux.conf" 2>/dev/null || true

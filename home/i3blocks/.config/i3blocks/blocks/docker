@@ -13,7 +13,7 @@ command -v docker >/dev/null 2>&1 || exit 0
 
 case "$BLOCK_BUTTON" in
   1) setsid -f kitty -e lazydocker >/dev/null 2>&1 ;;
-  3) setsid -f ~/.config/i3/scripts/docker_menu.sh >/dev/null 2>&1 </dev/null ;;
+  3) setsid -f ~/.config/sway/scripts/docker_menu.sh >/dev/null 2>&1 </dev/null ;;
 esac
 
 IDS=$(docker ps -q 2>/dev/null) || exit 0

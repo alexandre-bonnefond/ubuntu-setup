@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Power profile menu (power-profiles-daemon), opened from the i3 bar.
+# Power profile menu (power-profiles-daemon), opened from the bar.
 #
 # - Power saver: lower CPU clocks and boost off, quieter and cooler, longest battery
 # - Balanced: the default, full speed when needed, saves power when idle

@@ -1,7 +1,7 @@
 /*
  * Source: dctxmei/rofi-themes (1080p/launchers/misc/blurry.rasi)
  *
- * Made nearly opaque: there is no blur (compton), so with a see-through
+ * Made nearly opaque: sway does not blur, so with a see-through
  * background the windows behind made the app names unreadable.
  */
 
