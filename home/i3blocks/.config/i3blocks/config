@@ -28,6 +28,11 @@ signal=10
 label=SSD 
 interval=30
 
+# CPU temperature and fan speed, orange/red when the CPU, GPU or SSD runs hot,
+# left click shows every temperature and the fans' rpm
+[thermal]
+interval=5
+
 # Tailscale logo (Simple Icons font), gray when off, click opens the tailscale menu
 [tailscale]
 interval=10

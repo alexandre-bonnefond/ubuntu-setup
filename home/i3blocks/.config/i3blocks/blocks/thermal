@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+
+# CPU temperature and fan speed (% of the fans' maximum), from the kernel's hwmon sensors.
+# Orange or red when the CPU, GPU or SSD runs hot, left click shows every sensor.
+#
+# - CPU: coretemp package, SSD: nvme composite, fans: dell_smm (Dell laptops)
+# - GPU: nvidia-smi, only when the NVIDIA GPU is awake (it is not woken up for this)
+
+CPU_WARN=${CPU_WARN:-85}; CPU_CRIT=${CPU_CRIT:-95}
+GPU_WARN=${GPU_WARN:-80}; GPU_CRIT=${GPU_CRIT:-90}
+SSD_WARN=${SSD_WARN:-60}; SSD_CRIT=${SSD_CRIT:-70}
+
+# hwmon folder of a driver (e.g. coretemp), empty when absent
+hwmon() {
+  local f
+  f=$(grep -lx "$1" /sys/class/hwmon/hwmon*/name 2>/dev/null | head -n 1)
+  [ -n "$f" ] && dirname "$f"
+}
+
+# millidegrees to degrees, empty when unreadable
+celsius() {
+  local v
+  v=$(cat "$1" 2>/dev/null) && [ -n "$v" ] && echo $(( (v + 500) / 1000 ))
+}
+
+CORE=$(hwmon coretemp)
+NVME=$(hwmon nvme)
+PCH=$(hwmon pch_cannonlake)
+[ -z "$PCH" ] && PCH=$(hwmon 'pch_.*')
+WIFI=$(hwmon 'iwlwifi.*')
+FANS=$(hwmon dell_smm)
+
+CPU=$( [ -n "$CORE" ] && celsius "$CORE/temp1_input")
+SSD=$( [ -n "$NVME" ] && celsius "$NVME/temp1_input")
+
+# NVIDIA GPU, through the PCI device of the driver
+GPU="" GPU_STATE="none"
+for dev in /sys/bus/pci/drivers/nvidia/0000:*; do
+  [ -e "$dev" ] || continue
+  if [ "$(cat "$dev/power/runtime_status" 2>/dev/null)" = "suspended" ]; then
+    GPU_STATE="asleep"
+  else
+    GPU_STATE="awake"
+    GPU=$(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>/dev/null | head -n 1 | tr -d ' ')
+  fi
+  break
+done
+
+# fans: speed in % of their maximum, the fastest one in the bar
+FAN_PCT="" FAN_LINES=""
+if [ -n "$FANS" ]; then
+  for input in "$FANS"/fan[0-9]_input; do
+    [ -e "$input" ] || continue
+    n=${input##*/fan}; n=${n%_input}
+    rpm=$(cat "$input" 2>/dev/null) || continue
+    max=$(cat "$FANS/fan${n}_max" 2>/dev/null)
+    [ -z "$max" ] || [ "$max" -le 0 ] && max=5000
+    pct=$(( 100 * rpm / max ))
+    [ -z "$FAN_PCT" ] || [ "$pct" -gt "$FAN_PCT" ] && FAN_PCT=$pct
+    FAN_LINES+=$(printf '\nFan %s:  %d%%  (%d / %d rpm)' "$n" "$pct" "$rpm" "$max")
+  done
+fi
+
+# #{ details on left click
+
+if [ "$BLOCK_BUTTON" == "1" ]; then
+  BODY=""
+  if [ -n "$CORE" ]; then
+    HOTTEST=$(cat "$CORE"/temp*_input 2>/dev/null | sort -n | tail -n 1)
+    BODY+="CPU:  ${CPU}°C  (hottest core $(( (HOTTEST + 500) / 1000 ))°C)"
+  fi
+  case "$GPU_STATE" in
+    awake) BODY+=$'\n'"GPU:  ${GPU:-?}°C" ;;
+    asleep) BODY+=$'\n'"GPU:  asleep" ;;
+  esac
+  [ -n "$SSD" ] && BODY+=$'\n'"SSD:  ${SSD}°C"
+  [ -n "$PCH" ] && BODY+=$'\n'"Chipset:  $(celsius "$PCH/temp1_input")°C"
+  [ -n "$WIFI" ] && BODY+=$'\n'"Wi-Fi:  $(celsius "$WIFI/temp1_input")°C"
+  if [ -n "$FANS" ]; then
+    EC=$(for t in "$FANS"/temp*_input; do celsius "$t"; done | sort -n | paste -sd ' ')
+    [ -n "$EC" ] && BODY+=$'\n'"Fan controller sensors:  $EC °C"
+  fi
+  BODY+=$'\n'"$FAN_LINES"
+  notify-send -u low -t 10000 "Temperatures and fans" "$BODY" -h string:x-canonical-private-synchronous:thermal
+fi
+
+# #}
+
+# #{ bar text: thermometer, CPU temperature, snowflake, fan speed
+
+TEXT=$''" ${CPU:-?}°"
+[ -n "$FAN_PCT" ] && TEXT+=$'  '" ${FAN_PCT}%"
+echo "$TEXT"
+echo "$TEXT"
+
+# the worst of the CPU, GPU and SSD sets the color
+LEVEL=0
+check() {
+  local value=$1 warn=$2 crit=$3
+  [ -z "$value" ] && return
+  if [ "$value" -ge "$crit" ]; then LEVEL=2
+  elif [ "$value" -ge "$warn" ] && [ "$LEVEL" -lt 1 ]; then LEVEL=1
+  fi
+}
+check "$CPU" "$CPU_WARN" "$CPU_CRIT"
+check "$GPU" "$GPU_WARN" "$GPU_CRIT"
+check "$SSD" "$SSD_WARN" "$SSD_CRIT"
+
+case "$LEVEL" in
+  2) echo "$COLOR_CRIT" ;;
+  1) echo "$COLOR_WARN" ;;
+esac
+
+# #}

@@ -44,7 +44,7 @@ workspaces, the bar, tmux, bash and vim.
 
 - **sway**: modes (resize, gaps, mouse, pass-through), workspaces, gaps, tap to click, screen
   locked before suspend (swaylock, swayidle), region screenshot (grim, slurp, swappy).
-- **i3blocks bar**: CPU, RAM, volume, disk, Tailscale (menu), netscan, Docker (running
+- **i3blocks bar**: CPU, RAM, volume, disk, temperatures and fans, Tailscale (menu), netscan, Docker (running
   containers, click opens [lazydocker](https://github.com/jesseduffield/lazydocker), not
   installed by `install.sh`, right click a shell in a container), bandwidth, power profile
   (menu), battery, keyboard layout, clock, break reminder, cheatsheet, screen layouts, power
