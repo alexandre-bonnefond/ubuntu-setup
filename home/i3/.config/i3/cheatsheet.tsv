@@ -3,7 +3,7 @@
 # Each section is a tab, in this order. Alt = $mod, Super = $mod2.
 Menus	Super + /	This cheatsheet (Ctrl+Tab: next tab)
 Menus	Alt + D	App launcher	rofi -show drun -theme ~/.config/rofi/launcher.rasi
-Menus	Super + F	Power menu: lock, logout, suspend, reboot, shutdown	~/.config/i3/scripts/power_menu.sh
+Menus	Super + F	Power menu: lock, logout, suspend (hibernates when the battery runs low), hibernate, reboot, shutdown	~/.config/i3/scripts/power_menu.sh
 Menus	Super + M	Screen layouts saved by arandr (~/.screenlayout)	~/.config/i3/scripts/screen_layout_menu.sh
 Menus	Super + C	Colorscheme: dark / light	~/.config/i3/scripts/colorscheme_menu.sh
 Menus	Super + V	Clipboard history (Shift+Delete removes an item)	~/.config/i3/scripts/clipboard_menu.sh

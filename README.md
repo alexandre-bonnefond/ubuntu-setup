@@ -39,8 +39,9 @@ workspaces, the bar, tmux, bash and vim.
   (menu), battery, keyboard layout, clock, break reminder, cheatsheet, screen layouts, power
   menu, tray (nm-applet and blueman, icons following the colorscheme).
 - **rofi**: launcher (`Alt+D`) and menus sharing one theme (tiles, list and strip layouts):
-  power (lock, logout, suspend, reboot, shutdown), screen layouts (arandr), colorscheme,
-  clipboard history (CopyQ), Tailscale, power profile, break reminder, cheatsheet.
+  power (lock, logout, suspend then hibernate, hibernate, reboot, shutdown), screen layouts
+  (arandr), colorscheme, clipboard history (CopyQ), Tailscale, power profile, break reminder,
+  cheatsheet.
 - **lock screen**: xsecurelock with an ASCII animation (`tree_cycle`, a tree growing through a
   day of weather) on each screen and the password prompt over it, locked by xss-lock before
   suspend (lid included) and after 10 minutes without input.

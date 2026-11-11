@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 
-# Power menu: lock, logout, suspend, reboot, shutdown.
+# Power menu: lock, logout, suspend, hibernate, reboot, shutdown.
 # Launched by $mod2+f and from the power icon in the i3 bar.
 #
-# Hibernate is not in the menu: Ubuntu disables hibernation in polkit (/usr/share/polkit-1/rules.d/com.ubuntu.desktop.rules).
-# When swap and resume= are set up, it can be enabled for sudoers with:
+# Suspend is suspend-then-hibernate: suspended, then hibernated when the battery runs low
+# (or after HibernateDelaySec, /etc/systemd/sleep.conf.d/), plain suspend when hibernation
+# is not available. Hibernate writes the session to the swap file and powers off.
+#
+# Hibernation needs a swap file at least the size of the RAM, resume= and resume_offset= on
+# the kernel command line (/etc/default/grub) and RESUME= in /etc/initramfs-tools/conf.d/resume.
+# Ubuntu also disables it in polkit (/usr/share/polkit-1/rules.d/com.ubuntu.desktop.rules),
+# it can be enabled for sudoers with:
 #
 #   sudo tee /etc/polkit-1/rules.d/10-enable-hibernate.rules <<'EOF'
 #   polkit.addRule(function(action, subject) {
@@ -48,18 +54,21 @@ BATTERY=$(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -n 1)
 MESSAGE="Uptime: $(uptime -p | sed 's/^up //')"
 [ -n "$BATTERY" ] && MESSAGE+="   ·   Battery: $BATTERY%"
 
-ACTIONS=(lock logout suspend reboot shutdown)
+ACTIONS=(lock logout suspend hibernate reboot shutdown)
 CHOICE=$(rofi_menu "$USER@$(hostname)" "$MESSAGE" "" \
   $'\tLock' \
   $'\tLogout' \
   $'\tSuspend' \
+  $'\tHibernate' \
   $'\tReboot' \
   $'\tShutdown') || exit 0
 
 case "${ACTIONS[$CHOICE]}" in
   lock) lock ;;
   logout) i3-msg exit ;;
-  suspend) sleep_as suspend ;;
+  suspend)
+    if can SuspendThenHibernate; then sleep_as suspend-then-hibernate; else sleep_as suspend; fi
+    ;;
   hibernate)
     if can Hibernate; then
       sleep_as hibernate
