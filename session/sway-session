@@ -1,0 +1,31 @@
+#!/bin/sh
+# Starts sway on the integrated GPU only, so a hybrid laptop's NVIDIA GPU can power off
+# when idle (wlroots would otherwise open every GPU and keep the NVIDIA one awake).
+#
+# - WLR_DRM_DEVICES: the GPU that drives the built-in screen (boot_vga=1). Screens wired
+#   to the NVIDIA GPU then stay dark, start with SWAY_ALL_GPUS=1 to use them too.
+# - --unsupported-gpu: sway refuses to start next to the proprietary NVIDIA driver
+#   otherwise, even when it does not use it.
+
+if [ -z "${SWAY_ALL_GPUS:-}" ] && [ -z "${WLR_DRM_DEVICES:-}" ]; then
+  for card in /sys/class/drm/card[0-9]*; do
+    case "${card##*/}" in *-*) continue ;; esac
+    if [ "$(cat "$card/device/boot_vga" 2>/dev/null)" = 1 ] && [ -e "/dev/dri/${card##*/}" ]; then
+      export WLR_DRM_DEVICES="/dev/dri/${card##*/}"
+      break
+    fi
+  done
+fi
+
+if grep -q '^nvidia ' /proc/modules; then
+  # sway's EGL lists every GPU at start, and loading NVIDIA's EGL library opens the
+  # NVIDIA GPU for the whole session: only Mesa's (Intel) EGL for sway. The apps
+  # started from sway inherit it, NVIDIA offload still works for Vulkan and GLX
+  # (prime-run, Steam), EGL apps need __EGL_VENDOR_LIBRARY_FILENAMES unset.
+  MESA_EGL=/usr/share/glvnd/egl_vendor.d/50_mesa.json
+  if [ -z "${SWAY_ALL_GPUS:-}" ] && [ -e "$MESA_EGL" ]; then
+    export __EGL_VENDOR_LIBRARY_FILENAMES="$MESA_EGL"
+  fi
+  exec sway --unsupported-gpu "$@"
+fi
+exec sway "$@"

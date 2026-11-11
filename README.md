@@ -21,8 +21,9 @@ nothing, move them away and run it again. The bash config is added to `~/.bashrc
 `source` line.
 
 Then log out and pick **Sway** with the gear icon of the login screen. With the proprietary NVIDIA
-driver loaded, sway only starts with `--unsupported-gpu`: `install.sh` adds a **Sway (NVIDIA)**
-entry for that.
+driver loaded (hybrid laptops), pick **Sway (no NVIDIA)** instead, added by `install.sh`: sway
+does not start next to that driver without `--unsupported-gpu`, and this entry also keeps sway on
+the integrated GPU so the NVIDIA one can power off when idle (`session/sway-session`).
 
 The keyboard layouts and the switch key come from `/etc/default/keyboard`
 (`sudo dpkg-reconfigure keyboard-configuration`), e.g. `XKBLAYOUT="us,fr"` and
