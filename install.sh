@@ -46,17 +46,17 @@ fi
 
 # #{ sway login entry for hybrid NVIDIA laptops
 
-# The entry 'Sway (no NVIDIA)' of the login screen's gear menu starts sway through
+# The entry 'Sway (NVIDIA on demand)' of the login screen's gear menu starts sway through
 # session/sway-session: on the integrated GPU only, so the NVIDIA GPU can power off
 # when idle, and with --unsupported-gpu, without which sway refuses to start next to
 # the proprietary NVIDIA driver.
 
-SESSION=/usr/local/share/wayland-sessions/sway-no-nvidia.desktop
+SESSION=/usr/local/share/wayland-sessions/sway-nvidia-on-demand.desktop
 if [ "$APT" = 1 ] && grep -q '^nvidia ' /proc/modules; then
   sudo install -D -m 755 "$REPO/session/sway-session" /usr/local/bin/sway-session
   sudo mkdir -p "$(dirname "$SESSION")"
-  printf '%s\n' '[Desktop Entry]' 'Name=Sway (no NVIDIA)' \
-    'Comment=An i3-compatible Wayland compositor, on the integrated GPU only (the NVIDIA one can power off)' \
+  printf '%s\n' '[Desktop Entry]' 'Name=Sway (NVIDIA on demand)' \
+    'Comment=An i3-compatible Wayland compositor, on the integrated GPU, the NVIDIA one stays off until an app asks for it' \
     'Exec=/usr/local/bin/sway-session' 'Type=Application' 'DesktopNames=sway;wlroots' \
     | sudo tee "$SESSION" >/dev/null
 fi

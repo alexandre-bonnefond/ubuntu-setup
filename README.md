@@ -21,7 +21,7 @@ nothing, move them away and run it again. The bash config is added to `~/.bashrc
 `source` line.
 
 Then log out and pick **Sway** with the gear icon of the login screen. With the proprietary NVIDIA
-driver loaded (hybrid laptops), pick **Sway (no NVIDIA)** instead, added by `install.sh`: sway
+driver loaded (hybrid laptops), pick **Sway (NVIDIA on demand)** instead, added by `install.sh`: sway
 does not start next to that driver without `--unsupported-gpu`, and this entry also keeps sway on
 the integrated GPU so the NVIDIA one can power off when idle (`session/sway-session`).
 
