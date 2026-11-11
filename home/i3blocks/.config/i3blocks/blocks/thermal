@@ -33,15 +33,30 @@ FANS=$(hwmon dell_smm)
 CPU=$( [ -n "$CORE" ] && celsius "$CORE/temp1_input")
 SSD=$( [ -n "$NVME" ] && celsius "$NVME/temp1_input")
 
-# NVIDIA GPU, through the PCI device of the driver
+# NVIDIA GPU, through the PCI device of the driver. Each nvidia-smi call keeps an idle
+# GPU awake for a few more seconds, asking at every refresh would never let it power
+# off: an awake GPU is asked once a minute, at every refresh only while it is working
+# (utilization above 0). The last answer is kept in between.
 GPU="" GPU_STATE="none"
+GPU_CACHE="${XDG_RUNTIME_DIR:-/tmp}/i3blocks-thermal-gpu"
 for dev in /sys/bus/pci/drivers/nvidia/0000:*; do
   [ -e "$dev" ] || continue
   if [ "$(cat "$dev/power/runtime_status" 2>/dev/null)" = "suspended" ]; then
     GPU_STATE="asleep"
   else
     GPU_STATE="awake"
-    GPU=$(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>/dev/null | head -n 1 | tr -d ' ')
+    NOW=$(date +%s)
+    STAMP=0 BUSY=0
+    [ -r "$GPU_CACHE" ] && read -r STAMP GPU BUSY < "$GPU_CACHE"
+    HOLD=60
+    [ "${BUSY:-0}" -gt 0 ] 2>/dev/null && HOLD=1
+    if ! [ $(( NOW - STAMP )) -lt "$HOLD" ] 2>/dev/null; then
+      IFS=', ' read -r GPU BUSY < <(nvidia-smi --query-gpu=temperature.gpu,utilization.gpu --format=csv,noheader,nounits 2>/dev/null | head -n 1)
+      case "$GPU" in ''|*[!0-9]*) GPU="-" ;; esac
+      case "$BUSY" in ''|*[!0-9]*) BUSY=0 ;; esac
+      echo "$NOW $GPU $BUSY" > "$GPU_CACHE"
+    fi
+    [ "$GPU" = "-" ] && GPU=""
   fi
   break
 done
