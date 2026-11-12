@@ -40,7 +40,7 @@ Bar	CPU %	Click: btop, right click: orphaned processes using CPU, pick one to ki
 Bar	RAM %	Click: RAM and swap usage, biggest processes
 Bar	Thermometer / snowflake	CPU temperature and fan speed (% of max), orange/red when CPU, GPU or SSD is hot. Click: every temperature, fans' rpm
 Bar	♪ Volume	Right click: mute, scroll: ±5% (highlighted when not muted)
-Bar	Tailscale logo	Click: connect, exit node, peers, copy IP (grey = off)	~/.config/sway/scripts/tailscale_menu.sh
+Bar	Tailscale logo	Click: connect, exit node, peers (SSH, Tailscale SSH, remote desktop, copy the IP), copy my IP (grey = off)	~/.config/sway/scripts/tailscale_menu.sh
 Bar	Wi-Fi icon	Click: network menu (same as Super + W), right click: the Wi-Fi networks (a plug when wired, grey = offline)	~/.config/sway/scripts/network_menu.sh
 Bar	Network icon	Click: same as Super + N, scan the local networks, a tab per subnet, Enter SSHs into the device (~/git/netscan)	~/.local/bin/netscan rofi
 Bar	Docker logo	Running containers. Click: lazydocker, right click: shell in a running container (grey = none)	~/.config/sway/scripts/docker_menu.sh

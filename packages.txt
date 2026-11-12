@@ -63,3 +63,7 @@ vim-gtk3
 ranger
 w3m-img
 btop
+
+# remote desktop (RDP) of a Tailscale peer, from the Tailscale menu
+remmina
+remmina-plugin-rdp

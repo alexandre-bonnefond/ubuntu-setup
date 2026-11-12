@@ -62,7 +62,8 @@ workspaces, the bar, tmux, bash and vim.
   power (lock, logout, suspend then hibernate, hibernate, reboot, shutdown), network (Wi-Fi
   networks, Wi-Fi on / off, connection editor: swaybar cannot open a tray icon's menu), screen
   layouts (switch, save the current one, arrange with wdisplays), colorscheme, clipboard history
-  (cliphist), Tailscale, power profile, break reminder, cheatsheet.
+  (cliphist), Tailscale (exit node, SSH or remote desktop into a peer), power profile, break
+  reminder, cheatsheet.
 - **tmux**: starts in every kitty window, prefix `Ctrl+A`, vim-aware pane navigation
   (`Ctrl+H/J/K/L`), splits in the current folder, copy to the clipboard, session list, menus to
   mount and unmount drives.
