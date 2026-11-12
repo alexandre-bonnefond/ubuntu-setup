@@ -3,7 +3,7 @@
 # Each section is a tab, in this order. Alt = $mod, Super = $mod2.
 Menus	Super + /	This cheatsheet (Ctrl+Tab: next tab)
 Menus	Alt + D	App launcher	rofi -show drun -theme ~/.config/rofi/launcher.rasi
-Menus	Super + F	Power menu: lock, logout, suspend, reboot, shutdown	~/.config/sway/scripts/power_menu.sh
+Menus	Super + F	Power menu: lock, logout, suspend (hibernates when the battery runs low), hibernate, reboot, shutdown	~/.config/sway/scripts/power_menu.sh
 Menus	Super + M	Screen layouts (~/.screenlayout): switch, save the current one, arrange (wdisplays)	~/.config/sway/scripts/screen_layout_menu.sh
 Menus	Super + C	Colorscheme: dark / light	~/.config/sway/scripts/colorscheme_menu.sh
 Menus	Super + V	Clipboard history (Shift+Delete removes an item)	~/.config/sway/scripts/clipboard_menu.sh

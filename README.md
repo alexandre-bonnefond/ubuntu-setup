@@ -58,9 +58,9 @@ workspaces, the bar, tmux, bash and vim.
   (menu), battery, keyboard layout, clock, break reminder, cheatsheet, screen layouts, power
   menu, tray (nm-applet and blueman, icons following the colorscheme).
 - **rofi**: launcher (`Alt+D`) and menus sharing one theme (tiles, list and strip layouts):
-  power (lock, logout, suspend, reboot, shutdown), screen layouts (switch, save the current one,
-  arrange with wdisplays), colorscheme, clipboard history (cliphist), Tailscale, power profile,
-  break reminder, cheatsheet.
+  power (lock, logout, suspend then hibernate, hibernate, reboot, shutdown), screen layouts
+  (switch, save the current one, arrange with wdisplays), colorscheme, clipboard history
+  (cliphist), Tailscale, power profile, break reminder, cheatsheet.
 - **tmux**: starts in every kitty window, prefix `Ctrl+A`, vim-aware pane navigation
   (`Ctrl+H/J/K/L`), splits in the current folder, copy to the clipboard, session list, menus to
   mount and unmount drives.
