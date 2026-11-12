@@ -30,7 +30,7 @@ Windows	Alt + C	Mouse mode: move the pointer with the keyboard (F/U click, D/I r
 Windows	Alt + Shift + T	Pass-through mode: sway ignores the keys (VMs, remote desktop), same keys to leave
 Windows	Alt + Shift + C	Reload the sway config	swaymsg reload
 Windows	Alt + B	Hide / show the bar	swaymsg bar mode toggle
-Workspaces	Alt + 1 ... 0	Go to workspace 1 ... 10
+Workspaces	Alt + 1 ... 0	Go to workspace 1 ... 10, created when it does not exist (the number row keys, no Shift on a French keyboard)
 Workspaces	Alt + Shift + 1 ... 0	Move the window to workspace 1 ... 10
 Workspaces	Alt + N / M	Next / previous workspace on this screen
 Workspaces	Alt + X	Move the workspace to the screen on the right
