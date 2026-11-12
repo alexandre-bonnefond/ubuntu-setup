@@ -52,14 +52,16 @@ workspaces, the bar, tmux, bash and vim.
   [windowtolayer](https://gitlab.freedesktop.org/mstoeckl/windowtolayer) (the animation runs in a
   kitty); without them it is plain swaylock. `~/.config/sway/scripts/lock.sh --test` locks for 30
   seconds only.
-- **i3blocks bar**: CPU, RAM, volume, disk, temperatures and fans, Tailscale (menu), netscan, Docker (running
+- **i3blocks bar**: CPU (orange warning sign when an orphaned process burns CPU, right click
+  to kill it), RAM, volume, disk, temperatures and fans, Tailscale (menu), network (menu), netscan, Docker (running
   containers, click opens [lazydocker](https://github.com/jesseduffield/lazydocker), not
   installed by `install.sh`, right click a shell in a container), bandwidth, power profile
   (menu), battery, keyboard layout, clock, break reminder, cheatsheet, screen layouts, power
-  menu, tray (nm-applet and blueman, icons following the colorscheme).
+  menu, tray (blueman, icons following the colorscheme).
 - **rofi**: launcher (`Alt+D`) and menus sharing one theme (tiles, list and strip layouts):
-  power (lock, logout, suspend then hibernate, hibernate, reboot, shutdown), screen layouts
-  (switch, save the current one, arrange with wdisplays), colorscheme, clipboard history
+  power (lock, logout, suspend then hibernate, hibernate, reboot, shutdown), network (Wi-Fi
+  networks, Wi-Fi on / off, connection editor: swaybar cannot open a tray icon's menu), screen
+  layouts (switch, save the current one, arrange with wdisplays), colorscheme, clipboard history
   (cliphist), Tailscale, power profile, break reminder, cheatsheet.
 - **tmux**: starts in every kitty window, prefix `Ctrl+A`, vim-aware pane navigation
   (`Ctrl+H/J/K/L`), splits in the current folder, copy to the clipboard, session list, menus to

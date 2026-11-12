@@ -42,6 +42,14 @@ signal=12
 markup=pango
 separator=true
 
+# Wi-Fi / wired icon, gray when offline, click opens the network menu (Wi-Fi networks,
+# Wi-Fi on/off, connection editor), right click the Wi-Fi networks (swaybar cannot open
+# the menu of a tray icon such as nm-applet's)
+[network]
+interval=10
+signal=15
+separator=true
+
 # netscan (~/git/netscan): click scans the local networks, pick a device to SSH into it
 [netscan]
 full_text=

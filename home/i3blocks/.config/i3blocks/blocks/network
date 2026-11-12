@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+# Network icon: Wi-Fi when connected by Wi-Fi, a plug when wired, gray when offline.
+# A click opens the network menu (~/.config/sway/scripts/network_menu.sh), a right click
+# the list of the Wi-Fi networks.
+
+WIFI=$''
+WIRED=$''
+
+command -v nmcli >/dev/null 2>&1 || exit 0
+
+case "$BLOCK_BUTTON" in
+  "") ;;
+  3) setsid -f ~/.config/sway/scripts/network_menu.sh wifi >/dev/null 2>&1 </dev/null ;;
+  *) setsid -f ~/.config/sway/scripts/network_menu.sh >/dev/null 2>&1 </dev/null ;;
+esac
+
+# the connected device types, e.g. "wifi" and "ethernet" (tailscale, docker: not shown)
+TYPES=$(nmcli -t -f TYPE,STATE device 2>/dev/null | grep ':connected$' | cut -d: -f1)
+
+if grep -qx ethernet <<< "$TYPES"; then
+  echo "$WIRED"
+elif grep -qx wifi <<< "$TYPES"; then
+  echo "$WIFI"
+else
+  echo "$WIFI"
+  echo "$WIFI"
+  echo "$COLOR_MUTED"
+fi
