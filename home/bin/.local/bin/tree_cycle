@@ -1,0 +1,554 @@
+#!/usr/bin/env python3
+"""Roots Remember: a full-terminal alpine tree and weather cycle (Python 3)."""
+import argparse
+import math
+import shutil
+import signal
+import sys
+import time
+
+RESET = '\033[0m'
+CYCLE = 120.0
+GROWN, CLOUDS, RAIN, STRIKE, FALLEN = 46., 60., 68., 98., 104.
+WALL_JUMP, WALL_PUSH, CATCH, LAND = 54.8, 55.5, 56.8, 58.
+COLORS = {
+    'sky': 60, 'far': 60, 'ridge': 103, 'stone': 67, 'snow': 189,
+    'snowshade': 146, 'meadow': 65, 'grass': 71, 'root': 95,
+    'bark': 137, 'barkshade': 95, 'grain': 180, 'scar': 223,
+    'leaf': 65, 'leaflight': 107, 'leaftip': 150,
+    'sunrise': 202, 'sunwarm': 208, 'sungold': 214, 'sunhigh': 220,
+    'sun': 226, 'cloud': 153, 'cloudshade': 110, 'storm': 103,
+    'rain': 67, 'bird': 146, 'distant': 222, 'bolt': 226, 'text': 103,
+    'rabbit': 181, 'rabbitshade': 138, 'eye': 223,
+    'apple': 196, 'appleshade': 160, 'applegreen': 113, 'applegold': 214,
+}
+
+
+def clamp(value, low=0., high=1.):
+    return max(low, min(high, value))
+
+
+def smooth(value):
+    value = clamp(value)
+    return value * value * (3 - 2 * value)
+
+
+def noise(n):
+    """Stable scatter without random state or frame-to-frame sparkle."""
+    n = (int(n) ^ 0x9e3779b9) & 0xffffffff
+    n = ((n ^ (n >> 16)) * 0x7feb352d) & 0xffffffff
+    n = ((n ^ (n >> 15)) * 0x846ca68b) & 0xffffffff
+    return (n ^ (n >> 16)) / 0xffffffff
+
+
+def turn_sprite(art, angle):
+    """Rotate around the rabbit's center, correcting terminal cell aspect."""
+    points = {}
+    ca,sa = math.cos(angle),math.sin(angle)
+    for row,line in enumerate(art):
+        for col,ch in enumerate(line.ljust(8)):
+            dx,dy = (col-3.5)*.5,row-1.5
+            x = round(3.5+2*(dx*ca-dy*sa))
+            y = round(1.5+dx*sa+dy*ca)
+            if ch in '|-/\\':
+                directions = {'-':0,'\\':math.pi/4,'|':math.pi/2,'/':3*math.pi/4}
+                ch = ['-','\\','|','/'][round((directions[ch]+angle)/(math.pi/4))%4]
+            if ch != ' ' or (x,y) not in points:
+                points[x,y] = ch
+    return points
+
+
+def make_tree():
+    """Build a fixed organic branching skeleton in aspect-correct coordinates."""
+    segments = []
+    tips = []
+
+    def limb(x, y, angle, length, thickness, depth, born, seed):
+        bend = (noise(seed) - .5) * .20
+        xx = x + math.sin(angle + bend) * length
+        yy = y + math.cos(angle + bend) * length
+        duration = .12 if depth > 2 else .09
+        segments.append((x, y, xx, yy, thickness, born, duration, seed))
+        if depth == 0:
+            tips.append((xx, yy, born + duration, seed))
+            return
+        born += duration * .78
+        for side in (-1, 1):
+            spread = .38 + noise(seed * 7 + side + 10) * .28
+            next_angle = clamp(angle + side * spread, -1.40, 1.40)
+            limb(xx, yy, next_angle, length * (.64 + noise(seed+side+3)*.1),
+                 thickness * .62, depth-1, born, seed*3 + side+2)
+        if depth in (3, 5):
+            limb(xx, yy, angle*.65, length*.68, thickness*.55,
+                 depth-1, born+.035, seed*3+7)
+
+    # Several major boughs start at different heights on one continuous trunk.
+    limb(0, .19, -.05, .30, .026, 5, .10, 11)
+    limb(-.005, .30, -.90, .23, .021, 4, .20, 83)
+    limb(0, .36, .88, .27, .023, 4, .24, 171)
+    highest = max(max(s[1], s[3]) for s in segments)
+    widest = max(abs(v) for s in segments for v in (s[0], s[2]))
+    return segments, tips, highest, widest
+
+
+TREE, TIPS, TREE_HEIGHT, TREE_WIDTH = make_tree()
+
+
+def render(seconds, width, height, color=True, status=False):
+    width, height = max(1, width), max(1, height)
+    t = seconds % CYCLE
+    ground = height - max(2, round(height*.07))
+    cx = width * .49
+    stump_y = ground - max(2, height*.075)
+    tree_height = max(2, height*.77)
+    sy = tree_height / TREE_HEIGHT
+    sx = min(sy*2.05, width*.35/TREE_WIDTH)
+    growth = smooth(t / GROWN)
+    weather = smooth((t-CLOUDS)/12) * (1-smooth((t-108)/10))
+    rain = smooth((t-RAIN)/9) * (1-smooth((t-107)/10))
+    falling = smooth((t-STRIKE-.28)/(FALLEN-STRIKE-.28))
+    cells = [[(' ', 'sky') for _ in range(width)] for _ in range(height)]
+
+    def put(x, y, ch, tone):
+        x, y = round(x), round(y)
+        if 0 <= x < width and 0 <= y < height:
+            cells[y][x] = ch, tone
+
+    def text(x, y, value, tone):
+        for i, ch in enumerate(value):
+            if ch != ' ':
+                put(x+i, y, ch, tone)
+
+    def line(x, y, xx, yy, tone, ch=None):
+        steps = max(1, math.ceil(max(abs(xx-x), abs(yy-y))*1.5))
+        glyph = ch or ('|' if abs(xx-x) < abs(yy-y)*.7 else '/' if (xx-x)*(yy-y) < 0 else '\\')
+        for i in range(steps+1):
+            p = i/steps
+            put(x+(xx-x)*p, y+(yy-y)*p, glyph, tone)
+
+    # Draw the rising sun first: mountains and opaque clouds occlude it.
+    sunrise = smooth(t/42)
+    sun_rx = max(3, min(width*.055, height*.15))
+    sun_ry = max(1.5, sun_rx*.48)
+    sun_x = width*(.86-.025*sunrise)
+    sun_y = height*.66 + (max(sun_ry+4, height*.17)-height*.66)*sunrise
+    sun_tone = ['sunrise','sunwarm','sungold','sunhigh','sun'][min(4,int(sunrise*5))]
+    def sunlight(x,y,ch):
+        if t < 108:
+            put(x,y,ch,sun_tone)
+
+    for dy in range(-math.ceil(sun_ry),math.ceil(sun_ry)+1):
+        span = sun_rx*math.sqrt(max(0,1-(dy/sun_ry)**2))
+        if span < .5:
+            sunlight(sun_x,sun_y+dy,'_')
+            continue
+        for dx in range(-round(span),round(span)+1):
+            edge = abs(dx) == round(span)
+            sunlight(sun_x+dx,sun_y+dy,'(' if edge and dx < 0 else ')' if edge else
+                     '*' if (dx+dy)%3 == 0 else ':')
+    for ray in range(12):
+        a = ray*math.tau/12
+        for step in (1.4,2.4):
+            sunlight(sun_x+math.cos(a)*(sun_rx+step),
+                     sun_y+math.sin(a)*(sun_ry+step*.65),
+                     '|' if ray%6 == 3 else '-' if ray%6 == 0 else '/' if math.sin(a)*math.cos(a)<0 else '\\')
+
+    def cloud(x,y,art,tone):
+        for dy,row in enumerate(art):
+            # Interior spaces are opaque, so a passing cloud hides the sun.
+            left = len(row)-len(row.lstrip())
+            right = len(row.rstrip())
+            for dx in range(left,right):
+                put(x+dx,y+dy,row[dx],tone if dy < len(art)-1 else 'cloudshade')
+
+    cloud_count = max(3, width//27)
+    cloud_art = ['      .--.      ', '  .-(    ).-.   ', ' (___.__)____)  ']
+    for n in range(cloud_count):
+        x = (n*width/cloud_count - seconds*.65 + width*.2) % (width+24)-24
+        y = 1 + noise(n+10)*height*.12
+        cloud(x,y,cloud_art,'cloud')
+
+    # One full, rounded cloud arrives slowly and parks over the sun. Its
+    # opaque interior follows the outline rather than masking a sky rectangle.
+    parked_cloud = set()
+    cloud_ry = sun_ry+2.5
+    if CLOUDS-4 <= t < CYCLE:
+        cloud_rx = sun_rx+6
+        arrival = smooth((t-(CLOUDS-4))/(RAIN-(CLOUDS-4)))
+        cloud_x = sun_x+(width+cloud_rx*1.3-sun_x)*(1-arrival)
+        cloud_x -= width*.4*smooth((t-117)/3)
+
+        def in_cloud(x,y):
+            u,v = (x-cloud_x)/cloud_rx,(y-sun_y)/cloud_ry
+            return any(((u-a)/rx)**2+((v-b)/ry)**2 <= 1
+                       for a,b,rx,ry in [(0,.25,1.12,.65),(-.60,-.05,.50,.75),
+                                         (0,-.25,.58,.85),(.60,-.05,.50,.70)])
+        for y in range(max(0,math.floor(sun_y-cloud_ry*1.2)),min(height,math.ceil(sun_y+cloud_ry))):
+            for x in range(max(0,math.floor(cloud_x-cloud_rx*1.2)),min(width,math.ceil(cloud_x+cloud_rx*1.2))):
+                if in_cloud(x,y):
+                    parked_cloud.add((x,y))
+
+    # Background lightning is drawn behind the mountains and main tree.
+    for event, location in [(77., .15), (85., .83), (92., .27)]:
+        age = t-event
+        if 0 <= age < .65 and (age < .20 or .34 < age < .48):
+            x = width*location
+            points = [(x, height*.12), (x-3, height*.23), (x+1,height*.23),
+                      (x-5,height*.38), (x-2,height*.37), (x-8,height*.55)]
+            for a,b in zip(points,points[1:]):
+                line(*a,*b,'distant')
+            line(x-3,height*.23,x+5,height*.30,'distant')
+
+    # Distinct overlapping peaks; the tallest carries a jagged snow cap.
+    peaks = [(-.04,.55,.24),(.15,.27,.32),(.49,.53,.25),(.80,.38,.31),(1.08,.59,.28)]
+    for index, (center, top, half_width) in enumerate(peaks):
+        px, py = center*width, top*height
+        bottom = ground-1
+        span = half_width*width
+        for x in range(max(0,int(px-span)), min(width,int(px+span)+1)):
+            distance = abs(x-px)/max(1,span)
+            ridge = py + distance*(bottom-py)
+            ridge += math.sin(x*.47+index)*.42
+            if ridge >= bottom:
+                continue
+            snowline = py + (bottom-py)*.27 + math.sin(x*.43)*1.2 + math.sin(x*.91)*.6
+            snowy = index == 1 and ridge < snowline
+            for y in range(max(0,round(ridge)), bottom+1):
+                h = noise(x*73+y*137+index*51)
+                if snowy and y <= snowline:
+                    tone = 'snow' if x < px+2 else 'snowshade'
+                    ch = '/' if h > .80 else '\\' if h > .64 else '_' if h > .48 else '.' if h > .30 else ' '
+                else:
+                    tone = 'ridge' if x < px else 'stone'
+                    ch = ':' if h > .975 else '.' if h > .93 else ' '
+                put(x,y,ch,tone)
+            put(x,ridge,'/' if x < px else '\\','snow' if snowy else 'ridge')
+            # A thin eroded spine adds depth below the snowy summit.
+            if index == 1 and abs(x-(px+(ridge-py)*.42)) < 1.3:
+                put(x,ridge+2,'\\','snowshade')
+
+    # A little flock banks across the open sky and leaves before the rain.
+    if t < 65 or t > 117:
+        for n in range(5):
+            bx = ((seconds*2.4 + width*.06) % (width+40))-20-n*5
+            by = height*.22 + abs(n-2)*.8 + math.sin(seconds*.65+n)*.6
+            text(bx, by, ['v','-v-','\\_/','-^-'][int(seconds*3+n)%4], 'bird')
+
+    # Storm clouds build gradually, rather than appearing with the first drop.
+    if weather > 0:
+        for n in range(max(2,int(width*weather/16))):
+            x = (n*19-seconds*1.8) % (width+30)-24
+            y = max(0, round(height*.045)) + n%2
+            cloud(x,y,['    ___..---..___   ', ' .-(_____________)-.', '(___..________..____)'],'storm')
+
+    # Draw this foreground cloud after the smaller clouds so its outline
+    # remains readable while it rests in place through the whole rainfall.
+    for x,y in parked_cloud:
+        ch = ('_' if (x,y+1) not in parked_cloud else '.' if (x,y-1) not in parked_cloud
+              else '(' if (x-1,y) not in parked_cloud else ')' if (x+1,y) not in parked_cloud else ' ')
+        put(x,y,ch,'storm' if y < sun_y+cloud_ry*.5 else 'cloudshade')
+
+    # Low meadow, small tufts and a softly uneven horizon.
+    for x in range(width):
+        y = ground + round(math.sin(x/max(6,width*.14))*.45)
+        put(x,y,'_','meadow')
+        for yy in range(y+1,height):
+            if noise(x*31+yy*79) > .92:
+                put(x,yy,"'" if x%2 else ',', 'grass')
+    for n,x in enumerate(range(2,width,7)):
+        if noise(n+841) < .18 or abs(x-cx) < 8:
+            continue
+        lean = math.sin(seconds*1.3+n)*(.5+weather*.5)
+        text(x+lean,ground-1,'\\|/' if n%3 else "\\|'",'grass')
+        put(x+1,ground,'|','meadow')
+        if n%4 == 0:
+            text(x+3,ground+1,'v','grass')
+
+    # Rain is behind the tree so the silhouette stays readable.
+    if rain > .01:
+        count = int(width*height*.037*rain)
+        for n in range(count):
+            x = (noise(n*13+1)*width - seconds*9) % width
+            y = (noise(n*19+3)*height + seconds*23) % max(1,ground-3)+3
+            put(x,y,'/' if rain > .5 else '.', 'rain')
+            if y > ground-1.5 and n%3 == 0:
+                text(x,ground+1,'._.','rain')
+
+    base_half = max(1,round(sx*.033))
+    # The trunk retains the same substantial width down to its root flare.
+    for y in range(round(stump_y),ground+1):
+        half = base_half + (1 if y == ground else 0)
+        text(cx-half,y,'|'+'#'*(2*half-1)+'|','bark')
+        if half > 1:
+            put(cx-half+1,y,':','barkshade')
+    for side in (-1,1):
+        for root in range(2):
+            line(cx+side*(base_half+1.3),ground+1,
+                 cx+side*(base_half+3+root*3),ground+1+root*.4,'root','_')
+    for x in range(-base_half,base_half+1):
+        put(cx+x,stump_y,'/' if x%2 else '^','scar')
+
+    # Coordinate rotation accounts for the terminal's tall character cells.
+    sway = math.sin(seconds*.7)*(.009+weather*.014)
+    angle = falling*1.48
+    def project(x,y):
+        x += math.sin(y*3+seconds*.7)*y*y*(.008+weather*.018)
+        x += y*sway
+        xx = x*math.cos(angle)+y*math.sin(angle)
+        yy = y*math.cos(angle)-x*math.sin(angle)
+        sink = falling*max(0,sy*.10)
+        return cx+xx*sx, stump_y-yy*sy+sink
+
+    visible = t < FALLEN+2
+    fade = 1-smooth((t-FALLEN)/2)
+    visible_segments = []
+    if visible:
+        # A stout, gently tapered stem connects the original stump to the boughs.
+        stem_progress = clamp(growth/.21)
+        visible_segments.append((0,0,-.004,.33*stem_progress,.033,5))
+        for x,y,xx,yy,thickness,born,duration,seed in TREE:
+            p = smooth((growth-born)/duration)
+            if p > 0:
+                visible_segments.append((x,y,x+(xx-x)*p,y+(yy-y)*p,thickness,seed))
+        for x,y,xx,yy,thickness,seed in visible_segments:
+            if fade < .5 and noise(seed+20) > fade*2:
+                continue
+            ax,ay = project(x,y)
+            bx,by = project(xx,yy)
+            half = thickness*sx
+            if half < .72 or falling > .25:
+                line(ax,ay,bx,by,'bark')
+            else:
+                steps = max(1,math.ceil(max(abs(by-ay),abs(bx-ax))*2))
+                for i in range(steps+1):
+                    p = i/steps
+                    mx,my = ax+(bx-ax)*p, ay+(by-ay)*p
+                    radius = max(1,round(half*(1-.30*p)))
+                    for dx in range(-radius,radius+1):
+                        edge = abs(dx) == radius
+                        put(mx+dx,my,'|' if edge else '#' if (dx+seed)%3 else ':',
+                            'barkshade' if dx < 0 else 'bark')
+
+        # Leaf clusters soften the outer twigs while leaving the major boughs visible.
+        for x,y,born,seed in TIPS:
+            leaf_growth = smooth((growth-born)/.16)
+            if leaf_growth <= 0 or noise(seed+90) > fade:
+                continue
+            lx,ly = project(x,y)
+            rx = max(1.5, sx*.070*leaf_growth)
+            ry = max(1,sy*.052*leaf_growth)
+            for dy in range(-math.ceil(ry),math.ceil(ry)+1):
+                for dx in range(-math.ceil(rx),math.ceil(rx)+1):
+                    h = noise(seed*31+dx*73+dy*137)
+                    if (dx/rx)**2+(dy/ry)**2 < 1.25 and h > .14:
+                        tone = 'leaftip' if dy < 0 and h > .45 else 'leaflight' if h > .48 else 'leaf'
+                        put(lx+dx,ly+dy,',' if h < .35 else '*' if h > .82 else 'o',tone)
+
+    # Fruit develops beside an actual leaf-bearing twig: blossom, small
+    # green fruit, then a ripe apple on a short stem under the canopy.
+    anchor = project(-.558,.511)
+    apple_x,apple_y = anchor[0],anchor[1]+1.5
+
+    def draw_apple(x,y,ripe=True):
+        tone = 'apple' if ripe else 'applegreen' if t < 41 else 'applegold'
+        for dy,row in enumerate(['(o)','\\_/']):
+            for dx,ch in enumerate(row):
+                put(x-1+dx,y+dy,ch,tone if dy == 0 or not ripe else 'appleshade')
+
+    if 32 <= t < CATCH:
+        line(*anchor,apple_x,apple_y-1,'bark','|')
+        put(apple_x+1,apple_y-1,"'",'leaflight')
+        if t < 35:
+            put(apple_x,apple_y,'*','scar')
+        elif t < 38:
+            put(apple_x,apple_y,'o','applegreen')
+        else:
+            draw_apple(apple_x,apple_y,t >= 44)
+
+    # Leaves drift off the broken crown while the rain eases.
+    if STRIKE+1 < t < 113:
+        age = t-STRIKE-1
+        for n in range(34):
+            x = cx + sx*(.07+noise(n+51)*.7) + age*1.1 + math.sin(age+n)*2
+            y = stump_y-sy*(.15+noise(n+91)*.6)+age*(1+noise(n+2))
+            if y < ground:
+                put(x,y,',' if n%2 else '*','leaflight')
+
+    # A brief jagged bolt hits the actual break, with a secondary fork.
+    age = t-STRIKE
+    if 0 <= age < .72 and (age < .24 or .39 < age < .56):
+        points = [(cx+sx*.17,1),(cx-sx*.05,stump_y*.32),
+                  (cx+sx*.09,stump_y*.31),(cx-sx*.10,stump_y*.64),
+                  (cx+sx*.03,stump_y*.61),(cx,stump_y)]
+        for a,b in zip(points,points[1:]):
+            line(*a,*b,'bolt')
+        line(*points[1],cx+sx*.24,stump_y*.49,'distant')
+        line(cx+sx*.24,stump_y*.49,cx+sx*.20,stump_y*.63,'distant')
+        for n in range(11):
+            a = n*2.4
+            put(cx+math.cos(a)*(2+n%4),stump_y+math.sin(a)*(1+n%2),'*','scar')
+
+    # A meadow rabbit arrives after sunrise, grazes, and bolts for shelter
+    # with the first rain. Draw it last so grass and rain don't erase its face.
+    if 14 <= t < RAIN+5:
+        entering = smooth((t-14)/9)
+        rabbit_x = -9+(width*.23+9)*entering
+        rabbit_x += math.sin((t-23)*.23)*min(3,width*.025)*entering
+        target_x = apple_x-5
+        approach = smooth((t-31)/6)
+        rabbit_x += (target_x-rabbit_x)*approach
+        running = t >= RAIN
+        if running:
+            at_rain = target_x
+            rabbit_x = at_rain-(at_rain+12)*((t-RAIN)/5)
+        moving = t < 23 or running or (t-23)%9 < 1.4
+        hop_phase = (t-RAIN)*3 if running else t*1.8
+        lift = max(0,math.sin(hop_phase*math.tau))*(1.7 if running else .8) if moving else 0
+        trying = 37 <= t < 52
+        reaching = False
+        if trying:
+            attempt = (t-37)%4.8
+            # The normal jumps are too short for the apple in the canopy.
+            jump = clamp((attempt-.9)/1.5)
+            jump_height = min(height*.12,max(0,ground-4-(apple_y+2)))
+            lift = math.sin(jump*math.pi)*jump_height if .9 < attempt < 2.4 else 0
+            reaching = lift > jump_height*.35 and lift > .4
+            moving = lift > .2
+        rabbit_y = ground-4-round(lift)
+        facing_left = running or t >= WALL_PUSH
+        carrying = t >= CATCH
+        # Sprint, make a diagonal jump into the middle of the trunk, and
+        # immediately rebound into a full somersault toward the apple.
+        wall_x = cx-base_half-8
+        wall_y = ground-4-height*.22
+        launch_x = wall_x-max(6,sx*.23)
+        catch_x,catch_y = apple_x+1,apple_y-2
+        if 52 <= t < WALL_JUMP:
+            q = smooth((t-53.9)/(WALL_JUMP-53.9))
+            rabbit_x = target_x+(launch_x-target_x)*q
+            rabbit_y = ground-4-round(max(0,math.sin((t-52)*math.tau*4))*.5)
+            moving = t >= 53.9
+        elif WALL_JUMP <= t < WALL_PUSH:
+            q = (t-WALL_JUMP)/(WALL_PUSH-WALL_JUMP)
+            rabbit_x = launch_x+(wall_x-launch_x)*q
+            rabbit_y = (ground-4)+(wall_y-(ground-4))*q-math.sin(q*math.pi)*height*.035
+            reaching = moving = True
+        elif WALL_PUSH <= t < CATCH:
+            q = (t-WALL_PUSH)/(CATCH-WALL_PUSH)
+            rabbit_x = wall_x+(catch_x-wall_x)*q
+            rabbit_y = wall_y+(catch_y-wall_y)*q-math.sin(q*math.pi)*height*.11
+            reaching = moving = True
+        elif CATCH <= t < LAND:
+            q = (t-CATCH)/(LAND-CATCH)
+            rabbit_x = catch_x+(target_x-catch_x)*smooth(q)
+            rabbit_y = catch_y+((ground-4)-catch_y)*q*q
+            moving = True
+        elif LAND <= t < RAIN:
+            rabbit_x,rabbit_y = target_x,ground-4
+            moving = False
+        nibble = not moving and int(t*1.5)%4 == 0
+        art = ['   /)/)', '  ( -.-)' if nibble else '  ( . .)',
+               ' o(  _)>', '  /_/ \\_' if moving and int(hop_phase*4)%2 else '  (___)_']
+        if reaching:
+            art = ['   /)/)', '  ( o o)', ' o(  /)>', '   / \\  ']
+        if 52 <= t < 53.9:
+            art = ['        ', '   /)_  ', ' o( o.o)', '  (___)>']
+        if carrying:
+            art[1] = '  ( o o)'
+            art[2] = ' o(  u)>'
+        if facing_left:
+            mirror = str.maketrans({'(':')', ')':'(', '/':'\\', '\\':'/', '<':'>', '>':'<'})
+            art = [row.ljust(8)[::-1].translate(mirror) for row in art]
+        if WALL_PUSH <= t < CATCH:
+            q = (t-WALL_PUSH)/(CATCH-WALL_PUSH)
+            # Eight readable poses complete a full backward flip, then
+            # straighten before the catch. The travel arc never pauses.
+            angle = -math.tau*round(smooth((q-.06)/.84)*8)/8
+            for (dx,dy),ch in turn_sprite(art,angle).items():
+                put(rabbit_x+dx,rabbit_y+dy,ch,'rabbit')
+            if .12 < q < .85:
+                text(rabbit_x+10,rabbit_y+2,"' .",'root')
+        else:
+            for dy,row in enumerate(art):
+                for dx,ch in enumerate(row.ljust(8)):
+                    put(rabbit_x+dx,rabbit_y+dy,ch,'rabbitshade' if dy == 3 else 'rabbit')
+        if WALL_PUSH <= t < WALL_PUSH+.18:
+            text(cx-base_half-2,wall_y+3,'*','scar')
+        if carrying:
+            draw_apple(rabbit_x-1 if facing_left else rabbit_x+8,rabbit_y+2)
+        if (running or 52 <= t < WALL_JUMP) and int(t*9)%3:
+            text(rabbit_x+9,ground-1,'. .','root')
+
+    if status:
+        phase = ('new shoots' if t < 8 else 'reaching for the sun' if t < GROWN
+                 else 'a quiet afternoon' if t < CLOUDS else 'clouds gather' if t < RAIN
+                 else 'rain on the mountains' if t < 77 else 'thunder in the distance' if t < STRIKE
+                 else 'the crown breaks' if t < FALLEN else 'the roots remember')
+        text(2,height-1,f'ROOTS REMEMBER / {phase} / Ctrl-C to leave'[:max(0,width-4)],'text')
+    output = []
+    for row in cells:
+        previous = None
+        out = []
+        for ch,tone in row:
+            if color and tone != previous:
+                palette = COLORS[tone]
+                if weather > .6 and tone in ('leaflight','leaftip','snow','cloud'):
+                    palette = {'leaflight':65,'leaftip':107,'snow':146,'cloud':103}[tone]
+                out.append(f'\033[38;5;{palette}m')
+                previous = tone
+            out.append(ch)
+        output.append(''.join(out)+(RESET if color else ''))
+    return '\n'.join(output)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--preview', type=float, metavar='SECONDS', help='print one frame at this point in the cycle')
+    parser.add_argument('--no-color', action='store_true')
+    parser.add_argument('--status', action='store_true', help='show a small caption (hidden by default)')
+    parser.add_argument('--speed', type=float, default=1., help='time multiplier; default: 1')
+    parser.add_argument('--start', type=float, default=0., help='start at this second of the cycle')
+    parser.add_argument('--fps', type=int, default=15, help='frames per second; default: 15')
+    parser.add_argument('--width', type=int, help='preview width; animation uses terminal size')
+    parser.add_argument('--height', type=int, help='preview height; animation uses terminal size')
+    args = parser.parse_args()
+    if not math.isfinite(args.speed) or args.speed <= 0 or not 1 <= args.fps <= 60:
+        parser.error('speed must be finite and positive; fps must be between 1 and 60')
+    if not math.isfinite(args.start) or (args.preview is not None and not math.isfinite(args.preview)):
+        parser.error('start and preview must be finite')
+    size = shutil.get_terminal_size((100,36))
+    if args.preview is not None:
+        print(render(args.preview,args.width or size.columns,args.height or size.lines,
+                     not args.no_color,args.status))
+        return
+    if not sys.stdout.isatty():
+        parser.error('animation needs a terminal; use --preview SECONDS for a still frame')
+    start = time.monotonic()
+    def stop(_signum, _frame):
+        raise KeyboardInterrupt
+    signal.signal(signal.SIGTERM,stop)
+    previous_size = None
+    # Disable wrapping so the bottom-right cell does not scroll the scene.
+    sys.stdout.write('\033[?1049h\033[?25l\033[?7l\033[2J')
+    try:
+        while True:
+            tick = time.monotonic()
+            size = shutil.get_terminal_size((100,36))
+            w,h = max(1,size.columns),max(1,size.lines)
+            if (w,h) != previous_size:
+                sys.stdout.write('\033[2J')
+                previous_size = w,h
+            scene = render((tick-start)*args.speed+args.start,w,h,not args.no_color,args.status)
+            # Explicit row positions work consistently with terminal newline modes.
+            sys.stdout.write(''.join(f'\033[{i+1};1H{row}' for i,row in enumerate(scene.split('\n'))))
+            sys.stdout.flush()
+            time.sleep(max(0,1/args.fps-(time.monotonic()-tick)))
+    except KeyboardInterrupt:
+        pass
+    finally:
+        sys.stdout.write(RESET+'\033[?7h\033[?25h\033[?1049l')
+        sys.stdout.flush()
+
+
+if __name__ == '__main__':
+    main()

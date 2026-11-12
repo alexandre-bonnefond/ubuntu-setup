@@ -43,8 +43,15 @@ click on the layout in the bar goes to the next one, `Alt+Shift+C` applies a cha
 All shortcuts are in the cheatsheet (`Super+/` or `?` on the bar), with tabs for menus, windows,
 workspaces, the bar, tmux, bash and vim.
 
-- **sway**: modes (resize, gaps, mouse, pass-through), workspaces, gaps, tap to click, screen
-  locked before suspend (swaylock, swayidle), region screenshot (grim, slurp, swappy).
+- **sway**: modes (resize, gaps, mouse, pass-through), workspaces, gaps, tap to click, region
+  screenshot (grim, slurp, swappy).
+- **lock screen**: [swaylock-plugin](https://github.com/mstoeckl/swaylock-plugin) with an ASCII
+  animation (`tree_cycle`, a tree growing through a day of weather) on each screen and the
+  password ring over it, locked by swayidle before suspend (lid included) and after 10 minutes
+  without input. `install.sh` builds swaylock-plugin and
+  [windowtolayer](https://gitlab.freedesktop.org/mstoeckl/windowtolayer) (the animation runs in a
+  kitty); without them it is plain swaylock. `~/.config/sway/scripts/lock.sh --test` locks for 30
+  seconds only.
 - **i3blocks bar**: CPU, RAM, volume, disk, temperatures and fans, Tailscale (menu), netscan, Docker (running
   containers, click opens [lazydocker](https://github.com/jesseduffield/lazydocker), not
   installed by `install.sh`, right click a shell in a container), bandwidth, power profile

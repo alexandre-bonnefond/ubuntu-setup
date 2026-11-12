@@ -4,6 +4,22 @@
 stow
 git
 
+# builds of the lock screen: swaylock-plugin (meson, C) and windowtolayer (cargo)
+build-essential
+meson
+ninja-build
+pkg-config
+wayland-protocols
+libwayland-dev
+libxkbcommon-dev
+libcairo2-dev
+libgdk-pixbuf-2.0-dev
+libpam0g-dev
+libsystemd-dev
+cargo
+rustfmt
+python3
+
 # sway desktop (Wayland, X11 apps run through Xwayland)
 sway
 swaybg

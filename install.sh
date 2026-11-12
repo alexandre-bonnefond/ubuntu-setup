@@ -44,6 +44,32 @@ fi
 
 # #}
 
+# #{ lock screen: swaylock-plugin and windowtolayer from source (not packaged)
+
+# swaylock-plugin is swaylock with a program drawing the background, windowtolayer lets
+# that program be a terminal: together they show the tree_cycle animation on the lock
+# screen (home/sway/.config/sway/scripts/lock.sh, plain swaylock without them).
+
+if [ "$APT" = 1 ] && ! command -v swaylock-plugin >/dev/null; then
+  BUILD=$(mktemp -d)
+  git clone --depth 1 --branch v1.8.7 https://github.com/mstoeckl/swaylock-plugin "$BUILD/swaylock-plugin"
+  (cd "$BUILD/swaylock-plugin" && meson setup build --buildtype=release -Dman-pages=disabled && ninja -C build)
+  sudo install -m 755 "$BUILD/swaylock-plugin/build/swaylock-plugin" /usr/local/bin/
+  # the password check: same PAM rules as swaylock (PAM only reads /etc/pam.d)
+  sudo install -m 644 "$BUILD/swaylock-plugin/pam/swaylock-plugin" /etc/pam.d/swaylock-plugin
+  rm -rf "$BUILD"
+fi
+
+if [ "$APT" = 1 ] && ! command -v windowtolayer >/dev/null; then
+  BUILD=$(mktemp -d)
+  git clone --depth 1 --branch v0.4.0 https://gitlab.freedesktop.org/mstoeckl/windowtolayer.git "$BUILD/windowtolayer"
+  (cd "$BUILD/windowtolayer" && cargo build --release --locked)
+  sudo install -m 755 "$BUILD/windowtolayer/target/release/windowtolayer" /usr/local/bin/
+  rm -rf "$BUILD"
+fi
+
+# #}
+
 # #{ sway login entry for hybrid NVIDIA laptops
 
 # The entry 'Sway (NVIDIA on demand)' of the login screen's gear menu starts sway through

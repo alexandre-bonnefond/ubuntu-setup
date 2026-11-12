@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Background of the lock screen (lock.sh), started by swaylock-plugin once per screen:
+# the tree_cycle ASCII animation in a kitty window, which windowtolayer turns into a
+# wallpaper (swaylock-plugin only takes wallpaper programs). Both end on unlock.
+#
+# The kitty config is not read (no tmux, no palette): the colors of the i3 lock screen.
+# hide_window_decorations is needed: kitty crashes when it draws its title bar inside
+# swaylock-plugin. 8 frames per second keeps the CPU use low (15 fps doubles it).
+
+exec windowtolayer -- kitty --config NONE \
+  -o background=#0B1220 -o foreground=#5f5f87 \
+  -o font_family=Inconsolata -o font_size=14 \
+  -o hide_window_decorations=yes -o window_padding_width=0 \
+  -o confirm_os_window_close=0 -o enable_audio_bell=no \
+  ~/.local/bin/tree_cycle --fps 8
