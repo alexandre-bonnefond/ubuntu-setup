@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# Your processes left without a parent that still burn CPU, e.g. a script started by a terminal
+# or a background task whose shell was killed. Such orphans are adopted by init (PID 1) or by
+# systemd --user, so they are the user processes with one of those as parent. Idle daemons
+# and apps started from sway (tray applets, browsers) have the same parents, so only the ones
+# above MIN_CPU % of one core are listed. The folder they run in usually tells where they
+# came from.
+#
+# strays [-q|-t] [-s SECONDS] [MIN_CPU]
+#   MIN_CPU     default 10 (% of one core, a runaway loop is at 100)
+#   -s SECONDS  measure over that long (default 1)
+#   -q          print nothing, exit 0 when there is a stray (used by the CPU bar block)
+#   -t          one tab-separated line per stray: PID, CPU, running time, folder, command
+#               (used by the strays menu, right click on the CPU bar block)
+# then kill PID (or killp PID for its children too)
+
+QUIET=0
+TSV=0
+SAMPLE=1
+while getopts qts: opt; do
+  case $opt in
+    q) QUIET=1 ;;
+    t) TSV=1 ;;
+    s) SAMPLE=$OPTARG ;;
+    *) echo "usage: strays [-q|-t] [-s SECONDS] [MIN_CPU]" >&2; exit 2 ;;
+  esac
+done
+shift $(( OPTIND - 1 ))
+MIN_CPU=${1:-10}
+
+HZ=$(getconf CLK_TCK)
+PARENTS=" 1 $(pgrep -u "$USER" -x systemd | tr '\n' ' ')"
+
+# utime + stime in clock ticks (fields 14 and 15 of /proc/PID/stat, counted after the
+# command name, which can contain spaces)
+cpu_ticks() {
+  local stat
+  stat=$(cat "/proc/$1/stat" 2>/dev/null) || return 1
+  set -- ${stat##*) }
+  echo $(( ${12} + ${13} ))
+}
+
+declare -A START
+for pid in $(ps -u "$USER" -o pid=,ppid= | awk -v p="$PARENTS" 'index(p, " " $2 " ") { print $1 }'); do
+  START[$pid]=$(cpu_ticks "$pid") || unset "START[$pid]"
+done
+
+sleep "$SAMPLE"
+
+found=0
+for pid in "${!START[@]}"; do
+  ticks=$(cpu_ticks "$pid") || continue
+  cpu=$(( 100 * (ticks - START[$pid]) / (HZ * SAMPLE) ))
+  [ "$cpu" -lt "$MIN_CPU" ] && continue
+  [ "$QUIET" -eq 1 ] && exit 0
+  running=$(ps -o etime= -p "$pid" | tr -d ' ')
+  folder=$(readlink "/proc/$pid/cwd")
+  command=$(ps -o args= -p "$pid" | cut -c1-120)
+  if [ "$TSV" -eq 1 ]; then
+    printf '%s\t%s\t%s\t%s\t%s\n' "$pid" "$cpu" "$running" "$folder" "$command"
+  else
+    [ "$found" -eq 0 ] && printf '%-8s %5s %12s  %s\n' PID CPU% RUNNING 'FOLDER / COMMAND'
+    printf '%-8s %5s %12s  %s\n' "$pid" "$cpu" "$running" "$folder"
+    printf '%28s%s\n' '' "$command"
+  fi
+  found=1
+done
+
+[ "$found" -eq 1 ] && exit 0
+[ "$QUIET" -eq 0 ] && [ "$TSV" -eq 0 ] && echo "No orphaned process above $MIN_CPU % CPU."
+exit 1

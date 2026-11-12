@@ -8,10 +8,12 @@ command=. ~/.config/ubuntu-setup/palette/colors.sh; exec ~/.config/i3blocks/bloc
 separator_block_width=15
 markup=none
 
-# CPU usage in %, left click opens btop
+# CPU usage in %, orange warning sign when an orphaned process burns CPU (strays),
+# left click opens btop, right click lists the strays
 [cpu]
 interval=persist
 format=json
+markup=pango
 
 # RAM usage in %, left click shows the details
 [ram]

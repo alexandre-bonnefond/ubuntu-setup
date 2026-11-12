@@ -64,7 +64,8 @@ workspaces, the bar, tmux, bash and vim.
 - **tmux**: starts in every kitty window, prefix `Ctrl+A`, vim-aware pane navigation
   (`Ctrl+H/J/K/L`), splits in the current folder, copy to the clipboard, session list, menus to
   mount and unmount drives.
-- **bash**: git aliases, `auto-retry` / `ssh-auto-retry`, small helpers.
+- **bash**: git aliases, `auto-retry` / `ssh-auto-retry`, `strays` (orphaned processes still
+  using CPU), small helpers.
 - **vim**: no plugins, a few mappings (`jk` to leave insert mode, splits and tabs navigation,
   replace helpers, `:w!!` to save with sudo).
 - **kitty**, **ranger** and **btop** (TTY theme, follows the terminal colors).

@@ -35,7 +35,7 @@ Workspaces	Alt + 1 ... 0	Go to workspace 1 ... 10, created when it does not exis
 Workspaces	Alt + Shift + 1 ... 0	Move the window to workspace 1 ... 10
 Workspaces	Alt + N / M	Next / previous workspace on this screen
 Workspaces	Alt + X	Move the workspace to the screen on the right
-Bar	CPU %	Click: btop	kitty -e btop
+Bar	CPU %	Click: btop, right click: orphaned processes using CPU, pick one to kill it (orange ⚠ = one is running)	~/.config/sway/scripts/strays_menu.sh
 Bar	RAM %	Click: RAM and swap usage, biggest processes
 Bar	Thermometer / snowflake	CPU temperature and fan speed (% of max), orange/red when CPU, GPU or SSD is hot. Click: every temperature, fans' rpm
 Bar	♪ Volume	Right click: mute, scroll: ±5% (highlighted when not muted)
@@ -78,6 +78,7 @@ Bash	gcmp	Checkout master and pull
 Bash	gr CMD	git CMD in every submodule (e.g. gr status)
 Bash	git2ssh / git2https	Switch the origin remote between ssh and https
 Bash	killp PID	Kill a process with all its children
+Bash	strays [MIN_CPU]	Orphaned processes still using CPU (default above 10 %), with their folder
 Bash	auto-retry CMD	Rerun a command until it succeeds
 Bash	ssh-auto-retry HOST	ssh, retried until it connects
 Bash	colorscheme dark|light	Switch the palette from the terminal (same as Super + C)
