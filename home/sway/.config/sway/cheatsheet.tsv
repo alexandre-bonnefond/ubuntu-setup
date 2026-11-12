@@ -102,7 +102,8 @@ Vim	*	Highlight the word under the cursor without jumping
 Vim	// (visual)	Search the selected text
 Vim	:w!!	Save with sudo
 Vim	, r / , p / , a	Toggle relative numbers / paste mode / word highlight
-Cmdvault	↵ here	Command vault: pick a saved command, Enter copies it	~/.local/bin/cmdvault rofi
+Cmdvault	↵ here	Command vault: pick a saved command, Enter copies it	TERMINAL=kitty ~/.local/bin/cmdvault rofi
+Cmdvault	↵ here	Quick start: how cmdvault works, with a recording of each workflow (opens in the browser)	xdg-open ~/git/cmdvault/docs/quick-start.html
 Cmdvault	Ctrl + G	Search the command vault, the command lands on the prompt
 Cmdvault	Ctrl + A, ?	Command vault in a tmux popup, pasted into the pane
 Cmdvault	Ctrl + X, S	Save the typed line (save, save N: the last commands)
