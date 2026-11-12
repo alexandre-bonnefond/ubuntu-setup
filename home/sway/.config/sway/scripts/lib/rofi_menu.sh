@@ -30,12 +30,16 @@ rofi_menu() {
   fi
   [ -f "$MENU_ROFI_DIR/menu-$style.rasi" ] || style="tiles"
 
-  # icon above the label for the grid styles, next to it for the list
+  # icon above the label for the grid styles, next to it for the list. rofi 2 does not
+  # measure the rows, it sizes them for $rows lines of the menu font (-eh): the big icon
+  # is as tall as two of them, the label is the third
   local icon_size=26
   local joint=$'\n'
+  local rows=3
   if [ "$style" = "list" ]; then
     icon_size=14
     joint="     "
+    rows=1
   fi
 
   local entries=""
@@ -49,13 +53,13 @@ rofi_menu() {
   done
   entries="${entries%|}"
 
-  local args=(-dmenu -i -markup-rows -sep '|' -format i -p "$title" -theme "$MENU_ROFI_DIR/menu-$style.rasi")
+  local args=(-dmenu -i -markup-rows -sep '|' -format i -eh "$rows" -p "$title" -theme "$MENU_ROFI_DIR/menu-$style.rasi")
   [ -n "$message" ] && args+=(-mesg "$message")
 
-  # no empty rows, the tiles have 3 columns
+  # no empty rows, the tiles have 3 columns, a long list scrolls
   case "$style" in
     tiles) args+=(-theme-str "listview { lines: $(( ($# + 2) / 3 )); }") ;;
-    list) args+=(-theme-str "listview { lines: $#; }") ;;
+    list) args+=(-theme-str "listview { lines: $(( $# < 15 ? $# : 15 )); }") ;;
   esac
   [ -n "$active" ] && args+=(-a "$active" -selected-row "$active")
 
