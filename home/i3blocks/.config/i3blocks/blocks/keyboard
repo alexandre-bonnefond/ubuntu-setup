@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 
-# Active keyboard layout, urgent when it is not 'us'.
+# Active keyboard layout, urgent when it is not 'us'. A click switches to the next one
+# (as $mod2+space does), when /etc/default/keyboard has several.
 # The layouts and the switch key come from /etc/default/keyboard (applied by
 # ~/.config/sway/scripts/keyboard_layout.sh), sway reports the active one by index.
+
+if [ -n "$BLOCK_BUTTON" ]; then
+  swaymsg input type:keyboard xkb_switch_layout next >/dev/null 2>&1
+fi
 
 INDEX=$(swaymsg -t get_inputs 2>/dev/null | jq -r '[.[] | select(.type == "keyboard") | .xkb_active_layout_index // empty][0] // 0')
 

@@ -13,11 +13,13 @@ CONFIG=/etc/default/keyboard
 # shellcheck source=/dev/null
 source "$CONFIG"
 
+# the values are quoted: sway reads a comma as the end of the command, "us,fr" would
+# set the layout us and then run the command fr
 COMMANDS=()
-[ -n "${XKBMODEL:-}" ] && COMMANDS+=("input type:keyboard xkb_model $XKBMODEL")
-[ -n "${XKBLAYOUT:-}" ] && COMMANDS+=("input type:keyboard xkb_layout $XKBLAYOUT")
-[ -n "${XKBVARIANT:-}" ] && COMMANDS+=("input type:keyboard xkb_variant $XKBVARIANT")
-[ -n "${XKBOPTIONS:-}" ] && COMMANDS+=("input type:keyboard xkb_options $XKBOPTIONS")
+[ -n "${XKBMODEL:-}" ] && COMMANDS+=("input type:keyboard xkb_model \"$XKBMODEL\"")
+[ -n "${XKBLAYOUT:-}" ] && COMMANDS+=("input type:keyboard xkb_layout \"$XKBLAYOUT\"")
+[ -n "${XKBVARIANT:-}" ] && COMMANDS+=("input type:keyboard xkb_variant \"$XKBVARIANT\"")
+[ -n "${XKBOPTIONS:-}" ] && COMMANDS+=("input type:keyboard xkb_options \"$XKBOPTIONS\"")
 
 for cmd in "${COMMANDS[@]}"; do
   swaymsg "$cmd" >/dev/null

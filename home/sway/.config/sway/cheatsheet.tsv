@@ -8,6 +8,7 @@ Menus	Super + M	Screen layouts (~/.screenlayout): switch, save the current one, 
 Menus	Super + C	Colorscheme: dark / light	~/.config/sway/scripts/colorscheme_menu.sh
 Menus	Super + V	Clipboard history (Shift+Delete removes an item)	~/.config/sway/scripts/clipboard_menu.sh
 Menus	Super + N	Network devices: scan, a tab per subnet, Enter SSHs into one (netscan)	~/.local/bin/netscan rofi
+Menus	Super + Space	Next keyboard layout (the ones of /etc/default/keyboard)
 Menus	Print	Screenshot of a region, opened in swappy (draw, save, copy)
 Menus	Brightness keys	Screen brightness ±5%
 Menus	Volume keys	Volume ±5% / mute (also on the lock screen)
@@ -42,7 +43,7 @@ Bar	Tailscale logo	Click: connect, exit node, peers, copy IP (grey = off)	~/.con
 Bar	Network icon	Click: same as Super + N, scan the local networks, a tab per subnet, Enter SSHs into the device (~/git/netscan)	~/.local/bin/netscan rofi
 Bar	Docker logo	Running containers. Click: lazydocker, right click: shell in a running container (grey = none)	~/.config/sway/scripts/docker_menu.sh
 Bar	Power profile	Click: power saver / balanced / performance	~/.config/sway/scripts/power_profile_menu.sh
-Bar	Keyboard layout	Highlighted when not 'us' (Right Ctrl + Right Shift switches)
+Bar	Keyboard layout	Highlighted when not 'us'. Click: next layout (same as Super + Space)
 Bar	Break timer (clock)	Click: take a break, restart, pause 1 h, rhythm (orange = break due)	~/.config/sway/scripts/break_menu.sh
 Bar	? icon	Click: this cheatsheet (same as Super + /)
 Bar	Monitor icon	Click: screen layouts (same as Super + M)	~/.config/sway/scripts/screen_layout_menu.sh

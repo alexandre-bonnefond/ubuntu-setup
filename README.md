@@ -25,9 +25,9 @@ driver loaded (hybrid laptops), pick **Sway (NVIDIA on demand)** instead, added 
 does not start next to that driver without `--unsupported-gpu`, and this entry also keeps sway on
 the integrated GPU so the NVIDIA one can power off when idle (`session/sway-session`).
 
-The keyboard layouts and the switch key come from `/etc/default/keyboard`
-(`sudo dpkg-reconfigure keyboard-configuration`), e.g. `XKBLAYOUT="us,fr"` and
-`XKBOPTIONS="grp:rctrl_rshift_toggle"`.
+The keyboard layouts come from `/etc/default/keyboard`
+(`sudo dpkg-reconfigure keyboard-configuration`), e.g. `XKBLAYOUT="us,fr"`: `Super+Space` or a
+click on the layout in the bar goes to the next one, `Alt+Shift+C` applies a change of that file.
 
 ## Principles
 

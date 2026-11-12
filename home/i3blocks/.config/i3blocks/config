@@ -71,6 +71,7 @@ label=⚡
 instance=0
 interval=30
 
+# active keyboard layout, a click switches to the next one
 [keyboard]
 label= 
 interval=2
